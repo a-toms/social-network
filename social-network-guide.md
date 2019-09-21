@@ -1,10 +1,25 @@
 Create django project and django app
 
-What is a web page? 4mins
-What is a web app? 4mins
+
+What is a web page? 3mins
+What is a web app? 3mins
+What is Django? 1min
+What is the Django ORM? 2mins
+
+Today's aim is to create a basic social network app that will run locally, and that you 
+could easily expand and deploy online. 
+The aim is not to understand everything, but to gain an impression of the process of
+creating a web app, and to create a web app yourself by following my actions.
+
+There are many web frameworks. Django is particularly robust, scalable, and has excellent
+documentation. The process of creating an app with Django is similar to creating a web 
+app with another web framework.
 
 
-Brave, Chrome, or Firefox
+
+Use Brave, Chrome, or Firefox
+Complete Django Girls tutorial beforehand
+
 
 TD Notes
 - Expect spelling mistakes from the participants
@@ -170,11 +185,59 @@ urlpatterns = [
 ]
 ```
 
-5.3 -> Run your server and visit your created page!
+5.3 -> Run your server and visit your created profile page!
 cd sn/mysite/
 python manage.py runserver
 open your browser at the given url # This address will be http://127.0.0.1:8000/social-network/profile/
 observe your web app's page!
+
+
+6. Create a user and create a profile page for that user
+
+
+6.1 -> Create an admin page and register your first model
+```cd sn/mysite/social_network_app/```
+Open admin.py
+update the file so that it reads:
+```
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+
+from .models import CustomUser
+
+
+admin.site.register(CustomUser, UserAdmin)
+```
+
+6.2 -> Create a superuser via the terminal.
+This superuser follows your CustomUser model that you defined in models.py.
+We will create a superuser with special admin permissions below. We will create other users
+in a simpler way later.
+
+To create your first superuser, in your terminal:
+```cd sn/mysite/```
+```python manage.py createsuperuser```
+# Add the user's details
+# Congratulations! You have just added a user to your database in accordance with the 
+database structure that you defined in models.py earlier!
+
+6.3 -> visit your site's admin page and login using your superuser's details.
+Restart your server:
+```cd sn/mysite/```
+```python manage.py createsuperuser```
+Visit ```http://127.0.0.1:8000/admin``` in your browser and enter your superuser's login details
+# Welcome to the django admin site! This automatically generated admin site provides 
+# a graphical user interface that you may use to create new model instances (e.g., CustomUsers).
+
+
+
+Go to views.py ```cd sn/mysite/social_network_app/views.py```
+Update your views file so that it reads:
+
+
+
+
+
  
 
 
