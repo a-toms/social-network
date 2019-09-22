@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-{% load static %}
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
-    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
 </head>
 <body>
 <div>
     <nav>
         <h1>The Social Network</h1>
         Current user: {{request.user}}
+        <a href="{% url 'logout' %}">
+            <button>
+                Logout
+            </button>
+        </a>
     </nav>
     <hr>
     <div>
@@ -18,14 +21,6 @@
              alt="Cover picture image not found"
         />
         <hr>
-    </div>
-    <div>
-        <form action="{% url 'add-friend' sender_pk=request.user.pk recipient_pk=user.pk %}"
-              target="_blank">
-            <button type="submit">
-                Add friend
-            </button>
-        </form>
     </div>
 
     <h2>
@@ -42,31 +37,8 @@
             </h3>
         </div>
         <br>
-        <div>
-            Add a new friend
-            <form>
-                <label for="friend-search"></label>
-                Name: <input
-                    id="friend-search"
-                    type="text"
-                    name="username"
-            />
-                <input type="submit">
-                <div id="possible-friends">
-                </div>
-            </form>
-        </div>
     </div>
 </div>
-<script>
-    // Todo: continue here
-   function addFriend() {
-       $.ajax(
-       )
-   }
-
-</script>-->
-
 
 </body>
 </html>
