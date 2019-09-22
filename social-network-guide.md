@@ -492,10 +492,14 @@ Login again.
 
 
 
+8. Make friends
+8.1 -> Update custom user model to create a field that links to other users. 
+# The link that we will use is called a 'Many to Many' connection. As the name implies,
+# a m2m field may connect many database entries to many other database entries.
 
+# Because each user's friends will be other users, we will create a m2m model that links 
+# to itself (a recursive connection).
 
-8. Add friends
-8.1 -> Update custom user model to create a link to other users
 models.py
 
 ```
@@ -523,26 +527,40 @@ class CustomUser(AbstractUser):
         return str(self.username)
 ```
 
+8.2 -> Update your database by migrating your model changes.
+
+```cd sn/mysite/```
+```python manage.py makemigrations -n add_friends_field_to_User```
+```python manage.py migrate```
 
 
+8.1 -> Add html to your template that will show your friends
+# Now let's update your profile template to:
+# a) show the user's name as the the current user, rather the user's username, and
+# b) show an 'add as friend' button if the profile is not the current user's profile
+# c) show each user's friends
 
-
-
-8.1 -> Add html to your template that will show your friends and allow you to find more friends
 Open your template at ```mysite/social_network_app/templates/social_network_app/profile.html```.
 Update your file so that it contains:
 ```
 <!DOCTYPE html>
 <html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8">
     <title>User Profile</title>
 </head>
+
 <body>
 <div>
     <nav>
         <h1>The Social Network</h1>
-        Current user: {{request.user}}
+        Current user: {{request.user.first_name}}
+        <a href="{% url 'logout' %}">
+            <button>
+                Logout
+            </button>
+        </a>
     </nav>
     <hr>
     <div>
@@ -552,37 +570,71 @@ Update your file so that it contains:
         <hr>
     </div>
 
-    <h2>
+    <div>
         {{user.first_name}} {{user.last_name}}
-    </h2>
+        {% if request.user.pk != user.pk %}
+            {% if request.user in user.friends.all %}
+                <button>
+                    Is a friend!
+                </button>
+            {% else %}
+                <button id="add-friend-button">
+                    Add as friend
+                </button>
+            {% endif %}
+        {% endif %}
+    </div>
     <div>
         <p>Username: {{user.username}}</p>
         <p>Email address: {{user.email}}</p>
     </div>
     <div>
         <div>
-            <h3>
-                Friends: None yet
-            </h3>
+            <h3>Friends:</h3>
+            {% if user.friends.all %}
+                {% for friend in user.friends.all %}
+                    <p>{{friend.username}}</p>
+                {% endfor %}
+            {% else %}
+                <p>No friends yet</p>
+            {% endif %}
         </div>
         <br>
-        <div>
-            Add a new friend
-            <form>
-                Name: <input type="text" name="usrname">
-                <input type="submit">
-            </form>
-        </div>
     </div>
+
 </div>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+</script>
+<script type="text/javascript"
+        src="{% static 'social_network_app/js/profile.js' %}">
+</script>
+
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    addClickListenerToAddFriendButton({{request.user.pk}}, {{user.pk}}, csrfToken);
+</script>
 
 </body>
 </html>
 ```
 
 
-8.2 Create new view that add someone as a friend
+8.2 Create new view that that we may use to add someone as a friend
+Open views.py
+Add the below view to the bottom of the file:
 
+```
+def add_friend_view(request):
+    if request.method == 'POST':
+        sender_pk = request.POST['current_user_pk']
+        recipient_pk = request.POST['profile_user_pk']
+        sender = CustomUser.objects.get(pk=sender_pk)
+        recipient = CustomUser.objects.get(pk=recipient_pk)
+        sender.friends.add(recipient)
+        return HttpResponse(status=200)
+```
 
 
 
@@ -590,35 +642,155 @@ Update your file so that it contains:
 urls.py
 ```
 urlpatterns = [
-    path('profile/<str:username>', views.profile_view, name='profile'),
-    path('add-friend/<int:sender_pk><int:recipient_pk>', views.add_friend_view, name='add-friend'),
+    ...
+    path('add-friend/', views.add_friend_view, name='add-friend'),
 ]
 ```
 
 
-8.3 -> Add javascript to fetch friends from the database when a user types
-- Create directory structure
-```mysite/social_network_app/static/social_network_app```
+8.3 -> Add the ability to press the button to add a person as a friend without leaving the page
+# We want to be able to press the 'Add as friend' without leaving or refreshing the entire 
+# profile page. To do this, we will run a script on part of the page when we click the button. 
+# More specifically, we will use javascript to make an asynchronous call to our 'add_friend_view' in ```views.py```.
+
+# One way to make this async call cleaner is to use a javascript library called 'Intercooler JS' that
+# I and a few friends like using. However, we will use javascript with jquery (another js library) in
+# this tutorial as it involves less setup.
+
+
+- Create directory structure for your javascript files
+```mkdir mysite/social_network_app/static/```
+```mkdir mysite/social_network_app/static/social_network_app```
 - Create file
-```mysite/social_network_app/static/social_network_app/profile.js```
+```touch mysite/social_network_app/static/social_network_app/profile.js```
+- Open file and add the following javascript:
+```
+
+function addClickListenerToAddFriendButton(currentUserPk, profileUserPk, token) {
+    const addFriendButton = document.querySelector('#add-friend-button');
+    addFriendButton.addEventListener('click', () => {
+        $.ajax({
+            type: "POST",
+            url: "/social-network/add-friend/",
+            data: {
+                'current_user_pk': currentUserPk,
+                'profile_user_pk':profileUserPk,
+                'csrfmiddlewaretoken': token
+            },
+            dataType: "html",
+            success: function (response) {
+                addFriendButton.textContent = 'Added';
+            },
+        })
+    })
+}
+```
+The above javascript and jquery:
+- Gets the DOM element button (addFriendButton)
+- Adds an event listener that fires an ajax call whenever button is clicked
+- This ajax call sends the primary key (pk) of the user who was visiting the page - who we
+have named the 'currentUserPk' - and the pk of the user whose profile the current user is visitin
+- the 'profileUserPk' in a json format in the parameters of the POST request to 
+"/social-network/add-friend/"
+- When the data arrives at "/social-network/add-friend/", ```urls.py``` routes the data to 
+the ```add_friend_view``` function in ```views.py```
+- Our ```add_friend_view``` function then retrieves both users from the database, and adds 
+our friend many to many connection between the two users
+- The profile template then updates the page html.
 
 
+9. Create signup page
+# To create a signup page, we will follow a similar approach as previously.
 
+9.1 Create a signup template file
+```cd mysite/social_network_app/templates/social_network_app```
+```touch mysite/social_network_app/templates/social_network_app/signup.html```
 
+# When a person signs up, we must allow the person to provide the information that our
+# CustomUser model requires to create an instance of that CustomUser model in our database.
+# We will send that allow the person to send this required information to us by using forms
+# in our html. 
 
-
-
-
-
+Accordingly, add the following html to signup.html:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup</title>
+</head>
+<body>
+<nav>
+    <h1>The Social Network</h1>
+</nav>
+<form>
     <div>
-<!--        <form action="{% url 'add-friend' sender_pk=request.user.pk recipient_pk=user.pk %}"-->
-<!--              target="_blank">-->
-<!--            <button type="submit">-->
-<!--                Add friend-->
-<!--            </button>-->
-<!--        </form>-->
+        <input type="text" name="first_name" placeholder="First name">
     </div>
- 
+    <br>
+    <div>
+        <input type="text" name="last_name" placeholder="Last name">
+    </div>
+    <br>
+    <div>
+        <input type="text" name="username" placeholder="Username">
+    </div>
+    <br>
+    <div>
+        <input type="password" name="password" placeholder="Password">
+    </div>
+    <br>
+    <div>
+        <input type="email" name="email" placeholder="Email">
+    </div>
+    <button type="submit">
+        Sign up!
+    </button>
+</form>
+
+</body>
+</html>
+```
+
+9.2 Create a view that will send data to our template
+In views.py, add the below:
+```
+def signup_view(request):
+    if request.method == 'POST':
+        new_user = CustomUser.objects.create(
+            first_name=request.POST['first_name'],
+            last_name=request.POST['last_name'],
+            username=request.POST['username'],
+            password=request.POST['username'],
+            email=request.POST['email']
+        )
+        return redirect('profile', new_user.username)
+```
+
+9.3 Create an url address to route to our view
+I urls.py, add the following to our url patterns:
+(Ignore the ellipses. The ellipses represent the paths that we have already added(
+```
+urlpatterns = [
+	...
+    path('signup/', views.signup_view, name='signup'),
+]
+```
+
+9.4 Visit your signup page!
+Run your server if it is not already running by entering:
+```cd sn/mysite/```
+```python manage.py runserver```
+Visit 
+
+## Todo: continue updating signup.
+
+
+
+
+
+
+
  
  
  

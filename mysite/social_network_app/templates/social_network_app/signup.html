@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup</title>
+</head>
+<body>
+<nav>
+    <h1>The Social Network</h1>
+</nav>
+<form method="POST">
+    {% csrf_token %}
+    <div>
+        <input type="text" name="first_name" placeholder="First name">
+    </div>
+    <br>
+    <div>
+        <input type="text" name="last_name" placeholder="Last name">
+    </div>
+    <br>
+    <div>
+        <input type="text" name="username" placeholder="Username">
+    </div>
+    <br>
+    <div>
+        <input type="password" name="password" placeholder="Password">
+    </div>
+    <br>
+    <div>
+        <input type="email" name="email" placeholder="Email">
+    </div>
+    <button type="submit">
+        Sign up!
+    </button>
+</form>
+
+</body>
+</html>
