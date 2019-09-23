@@ -2,66 +2,111 @@
 <html lang="en">
 {% load static %}
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta charset="UTF-8">
     <title>User Profile</title>
 </head>
 
 <body>
-<div class="nav-wrapper">
-    <nav class="nav-bar">
-        <div class="box nav-element">The Social Network</div>
-        <div class="box nav-element"></div>
-        <div class="box nav-element">
-            <div class="current-user">{{ request.user.first_name }}
-                <a href="{% url 'logout' %}">
-                    <button class="item-one">
-                        Logout
-                    </button>
-                </a>
-            </div>
-    </nav>
-</div>
-    <div class="item-one cover-photo">
-        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1200&h=300&fit=crop&ixid=eyJhcHBfaWQiOjF9"
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="">{{ request.user.first_name }}</a></li>
+            <li><a href="">Components</a></li>
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="card top-container">
+    <div class="card-image waves-effect waves-block waves-light cover-photo-container">
+        <img class="cover-photo"
+             src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9"
              alt="Cover picture image not found"
-        />
+        >
+    </div>
+    <div class="profile-picture-container card-content">
+           <div class="">
+<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture">
+<!-- notice the "circle" class -->
+           <div class="profile-name grey-text ">
+               {{ user.first_name }} {{ user.last_name }}
+           </div>
+               <div class="personal-details grey-text text-darken-5">
+                   <p><i>{{ user.email }}</i></p>
+               </div>
+               <div class="right add-friend-container">
+                    {% if request.user.pk != user.pk %}
+                        {% if request.user in user.friends.all %}
+                            <button>
+                        Is a friend! <i class="material-icons">person</i>
+                    </button>
+                        {% else %}
+                            <a class="btn waves-effect waves-light blue" id="add-friend-button">
+                                <i class="material-icons">person_add</i>
+                            Add friend
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+            </span>
+            <div>
+
+            </div>
+        </div>
+        <div class="card-reveal">
+            <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
+            <p>Here is some more information about this product that is only revealed once clicked on.</p>
+        </div>
     </div>
 
     <div class="container">
-    <div class="item">
-        {{user.first_name}} {{user.last_name}}
-        {% if request.user.pk != user.pk %}
-            {% if request.user in user.friends.all %}
-                <button>
-                    Is a friend!
-                </button>
-            {% else %}
-                <button id="add-friend-button">
-                    Add as friend
-                </button>
-            {% endif %}
-        {% endif %}
-    </div>
-    <div class="item-one">
-        <p>Username: {{user.username}}</p>
-        <p>Email address: {{user.email}}</p>
-    </div>
-    <div>
-        <div class="item-one">
-            <h3>Friends:</h3>
-            {% if user.friends.all %}
-                {% for friend in user.friends.all %}
-                    <p>{{friend.username}}</p>
-                {% endfor %}
-            {% else %}
-                <p>No friends yet</p>
-            {% endif %}
+        <div class="column-item">
+
+
         </div>
-        <br>
+
     </div>
-    </div>
+<div class="row">
+    <div class="col s4">{% lorem 100 w %}</div>
+    <div class="col s4">{% lorem 100 w %}</div>
+    <div class="col s4">{% lorem 100 w %}</div>
+</div>
+<div class="friends-container">
+    <div class="section-title">Friends</div>
+            <div class="col s1 m1 offset-m2 l6 offset-l3">
+                {% if user.friends.all %}
+                    {% for friend in user.friends.all %}
+                        <div class="card-panel grey lighten-5 z-depth-1">
+                            <div class="row valign-wrapper">
+                                <div class="col s2">
+                                    <img src="https://source.unsplash.com/random" alt="" class="responsive-img">
+                                    <!-- notice the "circle" class -->
+                                </div>
+                                <div class="col s10">
+                                <span class="black-text">
+                                {{ friend.username }}
+                                </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No friends yet</p>
+    {% endif %}
+</div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -70,10 +115,16 @@
 <script type="text/javascript"
         src="{% static 'social_network_app/js/profile.js' %}">
 </script>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
 <script>
     const csrfToken = '{{ csrf_token }}';
-    addClickListenerToAddFriendButton({{request.user.pk}}, {{user.pk}}, csrfToken);
+    const currentUser = '{{request.user.pk}}';
+    if (currentUser) {
+        addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
+    }
+
 </script>
 
 </body>

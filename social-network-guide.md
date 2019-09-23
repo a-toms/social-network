@@ -757,14 +757,16 @@ In views.py, add the below:
 ```
 def signup_view(request):
     if request.method == 'POST':
-        new_user = CustomUser.objects.create(
+        CustomUser.objects.create_user(
             first_name=request.POST['first_name'],
             last_name=request.POST['last_name'],
             username=request.POST['username'],
-            password=request.POST['username'],
+            password=request.POST['password'],
             email=request.POST['email']
         )
-        return redirect('profile', new_user.username)
+        return redirect('login')
+    else:
+        return render(request, 'social_network_app/signup.html')
 ```
 
 9.3 Create an url address to route to our view
@@ -781,9 +783,13 @@ urlpatterns = [
 Run your server if it is not already running by entering:
 ```cd sn/mysite/```
 ```python manage.py runserver```
-Visit 
+Visit your signup page
+Create a new user
+Log in!
 
-## Todo: continue updating signup.
+
+10. Add some styling!
+10.1 
 
 
 

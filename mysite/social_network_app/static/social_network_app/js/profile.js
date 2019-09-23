@@ -17,3 +17,7 @@ function addClickListenerToAddFriendButton(currentUserPk, profileUserPk, token) 
         })
     })
 }
+
+$(document).ready(function () {
+
+});
