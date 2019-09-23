@@ -19,8 +19,12 @@
     <div class="nav-wrapper">
         <a href="#" class="brand-logo">The Social Network</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="">{{ request.user.first_name }}</a></li>
-            <li><a href="">Components</a></li>
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
             <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
                 Logout
             </li>
@@ -44,6 +48,7 @@
            </div>
                <div class="personal-details grey-text text-darken-5">
                    <p><i>{{ user.email }}</i></p>
+                   <p><i>{{ user.username }}</i></p>
                </div>
                <div class="right add-friend-container">
                     {% if request.user.pk != user.pk %}
@@ -71,19 +76,15 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="column-item">
-
-
+    <div class="section-container">
+        <div class="section-title">Wall</div>
+        <div class="row">
+            <div class="col s4">{% lorem 100 w %}</div>
+            <div class="col s4">{% lorem 100 w %}</div>
+            <div class="col s4">{% lorem 100 w %}</div>
         </div>
-
     </div>
-<div class="row">
-    <div class="col s4">{% lorem 100 w %}</div>
-    <div class="col s4">{% lorem 100 w %}</div>
-    <div class="col s4">{% lorem 100 w %}</div>
-</div>
-<div class="friends-container">
+    <div class="section-container">
     <div class="section-title">Friends</div>
             <div class="col s1 m1 offset-m2 l6 offset-l3">
                 {% if user.friends.all %}
