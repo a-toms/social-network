@@ -68,21 +68,22 @@
         </div>
     </div>
     <div class="section-container">
-        <div class="section-title">
-            Interests
-            <div class="section-text">
-                <p>Rock sailing
-                Water hiking
-                Pit jumping
-                Forest rafting
-                Loud Shouting
-                </p>
-            </div>
-        </div>
+
     </div>
     <div class="section-container">
         <div class="column-container-1">
             <div class="column-container-1-item-size-one">
+                <div class="section-title">
+                    Interests
+                    <div class="section-text">
+                        <p>Rock sailing
+                            Water hiking
+                            Pit jumping
+                            Forest rafting
+                            Loud Shouting
+                        </p>
+                    </div>
+                </div>
                 <div class="section-title">Friends
                     <i class="material-icons friends-icon">group</i>
                 </div>
@@ -91,19 +92,21 @@
                         <a href="{% url 'profile' username=friend.username %}">
                             <div class="row valign-wrapper current-friend-container">
                                 <button type="submit">
-                                <div class="current-friend-card">
-                                    <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
-                                    <div class="black-text">
-                                    {{ friend.first_name }} {{ friend.last_name }}
+                                    <div class="current-friend-card">
+                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <div class="black-text">
+                                            {{ friend.first_name }} {{ friend.last_name }}
+                                        </div>
                                     </div>
-                                </div>
                                 </button>
                             </div>
                         </a>
                     {% endfor %}
                 {% else %}
                     <p>No friends yet</p>
-                {% endif %}</div>
+                {% endif %}
+            </div>
+
             <div class="column-container-1-item-size-two">
                 <div class="section-title">
                     New post
