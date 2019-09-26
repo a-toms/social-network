@@ -3,9 +3,6 @@
 {% load static %}
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
 
@@ -21,7 +18,7 @@
         <ul id="nav-mobile" class="right hide-on-med-and-down">
             <li><a href=""></a></li>
             {% if request.user.username %}
-                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name</a></li>
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
             {% else %}
                 <li><a href="">Guest</a></li>
             {% endif %}
@@ -55,58 +52,79 @@
                         {% if request.user in user.friends.all %}
                             <button>
                         Is a friend! <i class="material-icons">person</i>
-                    </button>
+                            </button>
                         {% else %}
-                            <a class="btn waves-effect waves-light blue" id="add-friend-button">
+                            <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
                                 <i class="material-icons">person_add</i>
                             Add friend
-                            </a>
+                            </button>
                         {% endif %}
                     {% endif %}
                 </div>
 
-            </span>
             <div>
 
             </div>
         </div>
-        <div class="card-reveal">
-            <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
-            <p>Here is some more information about this product that is only revealed once clicked on.</p>
+    </div>
+    <div class="section-container">
+        <div class="section-title">
+            Interests
+            <div class="section-text">
+                <p>Rock sailing
+                Water hiking
+                Pit jumping
+                Forest rafting
+                Loud Shouting
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="section-container">
+        <div class="column-container-1">
+            <div class="column-container-1-item-size-one">
+                <div class="section-title">Friends
+                    <i class="material-icons friends-icon">group</i>
+                </div>
+                {% if user.friends.all %}
+                    {% for friend in user.friends.all %}
+                        <a href="{% url 'profile' username=friend.username %}">
+                            <div class="row valign-wrapper current-friend-container">
+                                <button type="submit">
+                                <div class="current-friend-card">
+                                    <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                    <div class="black-text">
+                                    {{ friend.first_name }} {{ friend.last_name }}
+                                    </div>
+                                </div>
+                                </button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No friends yet</p>
+                {% endif %}</div>
+            <div class="column-container-1-item-size-two">
+                <div class="section-title">
+                    New post
+                </div>
+                <div>
+                    <div class="input-field col ">
+                        <textarea id="textarea2" class="materialize-textarea"></textarea>
+                        <label for="textarea2"></label>
+                    </div>
+                    <button class="right">Post</button>
+                </div>
+                <div class="section-title">
+                    wall
+                </div>
+                <div>
+                    {% lorem 100 w %}
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="section-container">
-        <div class="section-title">Wall</div>
-        <div class="row">
-            <div class="col s4">{% lorem 100 w %}</div>
-            <div class="col s4">{% lorem 100 w %}</div>
-            <div class="col s4">{% lorem 100 w %}</div>
-        </div>
-    </div>
-    <div class="section-container">
-    <div class="section-title">Friends</div>
-            <div class="col s1 m1 offset-m2 l6 offset-l3">
-                {% if user.friends.all %}
-                    {% for friend in user.friends.all %}
-                        <div class="card-panel grey lighten-5 z-depth-1">
-                            <div class="row valign-wrapper">
-                                <div class="col s2">
-                                    <img src="https://source.unsplash.com/random" alt="" class="responsive-img">
-                                    <!-- notice the "circle" class -->
-                                </div>
-                                <div class="col s10">
-                                <span class="black-text">
-                                {{ friend.username }}
-                                </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No friends yet</p>
-    {% endif %}
 </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
@@ -117,7 +135,7 @@
         src="{% static 'social_network_app/js/profile.js' %}">
 </script>
 <!-- Compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
 
 <script>
     const csrfToken = '{{ csrf_token }}';
@@ -125,7 +143,6 @@
     if (currentUser) {
         addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
     }
-
 </script>
 
 </body>

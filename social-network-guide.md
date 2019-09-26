@@ -789,8 +789,298 @@ Log in!
 
 
 10. Add some styling!
-10.1 
+10.1 Update your profile template so that it contains the following:
+```
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+
+<body>
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="card top-container">
+    <div class="card-image waves-effect waves-block waves-light cover-photo-container">
+        <img class="cover-photo"
+             src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9"
+             alt="Cover picture image not found"
+        >
+    </div>
+    <div class="profile-picture-container card-content">
+           <div class="">
+<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture">
+<!-- notice the "circle" class -->
+           <div class="profile-name grey-text ">
+               {{ user.first_name }} {{ user.last_name }}
+           </div>
+               <div class="personal-details grey-text text-darken-5">
+                   <p><i>{{ user.email }}</i></p>
+                   <p><i>{{ user.username }}</i></p>
+               </div>
+               <div class="right add-friend-container">
+                    {% if request.user.pk != user.pk %}
+                        {% if request.user in user.friends.all %}
+                            <button>
+                        Is a friend! <i class="material-icons">person</i>
+                    </button>
+                        {% else %}
+                            <a class="btn waves-effect waves-light blue" id="add-friend-button">
+                                <i class="material-icons">person_add</i>
+                            Add friend
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+            <div>
+
+            </div>
+        </div>
+        <div class="card-reveal">
+            <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
+            <p>Here is some more information about this product that is only revealed once clicked on.</p>
+        </div>
+    </div>
+
+    <div class="section-container">
+        <div class="section-title">Wall</div>
+        <div class="row">
+            <div class="col s4">{% lorem 100 w %}</div>
+            <div class="col s4">{% lorem 100 w %}</div>
+            <div class="col s4">{% lorem 100 w %}</div>
+        </div>
+    </div>
+    <div class="section-container">
+        <div class="section-title">Friends</div>
+        <div class="col s1 m1 offset-m2 l6 offset-l3">
+            {% if user.friends.all %}
+                {% for friend in user.friends.all %}
+                <div class="card-panel grey lighten-5 z-depth-1">
+                    <div class="row valign-wrapper">
+                        <div class="col s2">
+                            <img src="https://source.unsplash.com/random" alt="" class="responsive-img">
+                            <!-- notice the "circle" class -->
+                        </div>
+                        <div class="col s10">
+                                <span class="black-text">
+                                {{ friend.username }}
+                                </span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>No friends yet</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+</script>
+<script type="text/javascript"
+        src="{% static 'social_network_app/js/profile.js' %}">
+</script>
+<!-- Compiled and minified JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    const currentUser = '{{request.user.pk}}';
+    if (currentUser) {
+        addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
+    }
+
+</script>
+
+</body>
+</html>
+```
+
+10.2 Add CSS to style your profile page.
+```cd mysite/social_network_app/static/```
+```mkdir mysite/social_network_app/static/social_network_app/css```
+```touch mysite/social_network_app/static/social_network_app/css/profile.css```
+
+
+Copy and paste the following CSS into ```profile.css```:
+```
+body {
+    background: #fffcfc;
+}
+
+img {
+    max-width: 100%;
+    height: 300px;
+    border: 2px solid rgba(111, 59, 148, 0.13);
+}
+
+body {
+    background-image: linear-gradient(to right, rgba(29, 112, 255, 0.31));
+}
+
+
+.nav-bar {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.box {
+    text-align: center;
+    justify-content: center;
+    align-self: center;
+    flex: 1;
+}
+
+.nav-element {
+    font-size: 24px;
+}
+
+
+.site-title {
+    flex: 1;
+}
+
+.current-user {
+    flex: 1;
+}
+
+.top-container {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+    z-index: -1;
+}
+
+.cover-photo-container{
+    width: 100%;
+}
+
+
+.cover-photo {
+    display: block;
+    border-radius: 2px 2px 0 0;
+    object-fit: cover;
+    bottom: 0;
+}
+
+.card-image {
+    top: -60px
+}
+
+.profile-picture-container {
+    margin-top: -4rem;
+}
+
+.profile-picture {
+    border: 3px solid white;
+    box-shadow: 0px 0px 2px 2px lightgrey;
+    margin-top: -5em;
+    z-index: 1;
+    position: relative;
+}
+
+.profile-name{
+    margin-left: 13rem;
+    margin-top: -7rem;
+    margin-bottom: 5em;
+    font-size: 24px;
+}
+
+.personal-details {
+    margin-left: 13rem;
+    margin-top: -8rem;
+    font-size: 16px;
+    padding-bottom: 20px;
+}
+
+
+.add-friend-container {
+    margin-top: -9rem;
+}
+
+#add-friend-button {
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+
+.body-container{
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1;
+    flex-direction: column;
+}
+
+.column-item{
+    flex: 1;
+    width: 33%;
+}
+
+.section-title {
+    font-size: 2.92rem;
+    line-height: 80%;
+    margin: 1.9466666667rem 0 1.168rem 0;
+    padding-left: 22px;
+}
+
+.btn {
+    cursor: pointer;
+}
+
+```
+
+
+
+11. Add posts and comments to your wall
+
+11.1 Add a "New Post" section to the html in your profile page
+# This will include a form with a text area and a button that you will press to create a 
+# new post.
+
+
+
+
+
+11.2 Add a Post to your models
+
+
+
+
+11.3 Add 
 
 
 
