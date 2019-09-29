@@ -22,5 +22,22 @@ class CustomUser(AbstractUser):
         return str(self.username)
 
 
+class Post(models.Model):
+    text = models.CharField(max_length=600)
+    datetime_posted = models.DateTimeField(auto_now=True)
+    likes = models.IntegerField(default=0)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+
+
+class Comment(models.Model):
+    text = models.TextField(max_length=600)
+    datetime_posted = models.DateTimeField(auto_now=True)
+    likes = models.IntegerField(default=0)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+
+
+
 
 

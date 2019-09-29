@@ -15,6 +15,8 @@ There are many web frameworks. Django is particularly robust, scalable, and has 
 documentation. The process of creating an app with Django is similar to creating a web 
 app with another web framework.
 
+How to become proficient?
+Deliberate practice.
 
 
 Use Brave, Chrome, or Firefox
@@ -170,7 +172,7 @@ urlpatterns = [
 ]
 ```
 
-5.2 -> Add a url route for your social network app
+5.2 -> Add a url route for your social network app profile
 
 cd sn/mysite/social_network_app
 touch urls.py  # Create urls.py
@@ -191,6 +193,11 @@ cd sn/mysite/
 python manage.py runserver
 open your browser at the given url # This address will be http://127.0.0.1:8000/social-network/profile/
 observe your web app's page!
+
+# If you encounter a template error, it is likely that you have mispelled a path to the profile
+# template. If you encounter a page not found error, it is likely that you have mispelled the 
+# one or more of the urls.
+
 
 6. Create an admin page for your app
 
@@ -249,7 +256,7 @@ email=fast@mail.com
 Then scroll down and click save.
 
 # Congratulations! You have just added a user to your database in accordance with the 
-database structure that you defined earlier in models.py!
+# database structure that you defined earlier in models.py!
 
 
 7. Create a profile page for that user
@@ -281,7 +288,7 @@ def profile_view(request, username: str):
 ```
 
 
-7.3 -> Update your template to use the data in the newly received user model instance.
+7.3 -> Update your template to use the data in the newly received user model instance to render the particular user's profile page.
 Open your template at ``mysite/social_network_app/templates/social_network_app/profile.html``.
 Update your file so that it contains:
 ```
@@ -649,16 +656,18 @@ urlpatterns = [
 
 
 8.3 -> Add the ability to press the button to add a person as a friend without leaving the page
-# We want to be able to press the 'Add as friend' without leaving or refreshing the entire 
+
+# We want to be able to press the 'Add as friend' button to add a friend without leaving or refreshing the entire 
 # profile page. To do this, we will run a script on part of the page when we click the button. 
 # More specifically, we will use javascript to make an asynchronous call to our 'add_friend_view' in ```views.py```.
 
 # One way to make this async call cleaner is to use a javascript library called 'Intercooler JS' that
 # I and a few friends like using. However, we will use javascript with jquery (another js library) in
-# this tutorial as it involves less setup.
+# this tutorial; this method involves less setup than using Intercooler JS. However, I recommend 
+# Intercooler JS for future javascript projects.
 
 
-- Create directory structure for your javascript files
+- First, create a suitable directory structure for your javascript files
 ```mkdir mysite/social_network_app/static/```
 ```mkdir mysite/social_network_app/static/social_network_app```
 - Create file
@@ -687,10 +696,10 @@ function addClickListenerToAddFriendButton(currentUserPk, profileUserPk, token) 
 ```
 The above javascript and jquery:
 - Gets the DOM element button (addFriendButton)
-- Adds an event listener that fires an ajax call whenever button is clicked
-- This ajax call sends the primary key (pk) of the user who was visiting the page - who we
-have named the 'currentUserPk' - and the pk of the user whose profile the current user is visitin
-- the 'profileUserPk' in a json format in the parameters of the POST request to 
+- Adds an event listener that fires an ajax call when the user clicks the button.
+- This ajax call sends the primary key (pk) of the user who was visiting the page - which we
+have named the 'currentUserPk' - and the pk of the user whose profile the current user is visitind - 
+which we have called 'profileUserPk' - in a json format in the parameters of the POST request to 
 "/social-network/add-friend/"
 - When the data arrives at "/social-network/add-friend/", ```urls.py``` routes the data to 
 the ```add_friend_view``` function in ```views.py```
@@ -796,9 +805,6 @@ Log in!
 {% load static %}
 <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-
     <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
 
@@ -848,12 +854,12 @@ Log in!
                         {% if request.user in user.friends.all %}
                             <button>
                         Is a friend! <i class="material-icons">person</i>
-                    </button>
+                            </button>
                         {% else %}
-                            <a class="btn waves-effect waves-light blue" id="add-friend-button">
+                            <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
                                 <i class="material-icons">person_add</i>
                             Add friend
-                            </a>
+                            </button>
                         {% endif %}
                     {% endif %}
                 </div>
@@ -862,44 +868,68 @@ Log in!
 
             </div>
         </div>
-        <div class="card-reveal">
-            <span class="card-title grey-text text-darken-4">Card Title<i class="material-icons right">close</i></span>
-            <p>Here is some more information about this product that is only revealed once clicked on.</p>
+    </div>
+    <div class="section-container">
+
+    </div>
+    <div class="section-container">
+        <div class="column-container-1">
+            <div class="column-container-1-item-size-one">
+                <div class="section-title">
+                    Interests
+                    <div class="section-text">
+                        <p>Rock sailing
+                            Water hiking
+                            Pit jumping
+                            Forest rafting
+                            Loud Shouting
+                        </p>
+                    </div>
+                </div>
+                <div class="section-title">Friends
+                    <i class="material-icons friends-icon">group</i>
+                </div>
+                {% if user.friends.all %}
+                    {% for friend in user.friends.all %}
+                        <a href="{% url 'profile' username=friend.username %}">
+                            <div class="row valign-wrapper current-friend-container">
+                                <button type="submit">
+                                    <div class="current-friend-card">
+                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <div class="black-text">
+                                            {{ friend.first_name }} {{ friend.last_name }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No friends yet</p>
+                {% endif %}
+            </div>
+
+            <div class="column-container-1-item-size-two">
+                <div class="section-title">
+                    New post
+                </div>
+                <div>
+                    <div class="input-field col ">
+                        <textarea id="textarea2" class="materialize-textarea"></textarea>
+                        <label for="textarea2"></label>
+                    </div>
+                    <button class="right">Post</button>
+                </div>
+                <div class="section-title">
+                    wall
+                </div>
+                <div>
+                    {% lorem 100 w %}
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="section-container">
-        <div class="section-title">Wall</div>
-        <div class="row">
-            <div class="col s4">{% lorem 100 w %}</div>
-            <div class="col s4">{% lorem 100 w %}</div>
-            <div class="col s4">{% lorem 100 w %}</div>
-        </div>
-    </div>
-    <div class="section-container">
-        <div class="section-title">Friends</div>
-        <div class="col s1 m1 offset-m2 l6 offset-l3">
-            {% if user.friends.all %}
-                {% for friend in user.friends.all %}
-                <div class="card-panel grey lighten-5 z-depth-1">
-                    <div class="row valign-wrapper">
-                        <div class="col s2">
-                            <img src="https://source.unsplash.com/random" alt="" class="responsive-img">
-                            <!-- notice the "circle" class -->
-                        </div>
-                        <div class="col s10">
-                                <span class="black-text">
-                                {{ friend.username }}
-                                </span>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            {% else %}
-                <p>No friends yet</p>
-            {% endif %}
-        </div>
-    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
@@ -910,7 +940,7 @@ Log in!
         src="{% static 'social_network_app/js/profile.js' %}">
 </script>
 <!-- Compiled and minified JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
 
 <script>
     const csrfToken = '{{ csrf_token }}';
@@ -918,7 +948,6 @@ Log in!
     if (currentUser) {
         addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
     }
-
 </script>
 
 </body>
@@ -980,6 +1009,9 @@ body {
     margin-right: auto;
     width: 75%;
     z-index: -1;
+    position: absolute !important;
+    left: 0;
+    right: 0;
 }
 
 .cover-photo-container{
@@ -994,9 +1026,24 @@ body {
     bottom: 0;
 }
 
+.card {
+    position: absolute;
+    background-color: #fff;
+    -webkit-transition: -webkit-box-shadow .25s;
+    transition: -webkit-box-shadow .25s;
+    border-radius: 2px;
+}
 .card-image {
     top: -60px
 }
+
+.card-content {
+    padding-top: 24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 10px;
+}
+
 
 .profile-picture-container {
     margin-top: -4rem;
@@ -1054,18 +1101,55 @@ body {
     font-size: 2.92rem;
     line-height: 80%;
     margin: 1.9466666667rem 0 1.168rem 0;
-    padding-left: 22px;
+}
+
+.section-text {
+    font-size: 16px;
 }
 
 .btn {
     cursor: pointer;
 }
 
+.column-container-1 {
+    display: flex;
+    width: 95%;
+    text-align: left;
+    margin: auto;
+}
+
+.column-container-1-item-size-one {
+    flex: 1;
+}
+
+.column-container-1-item-size-two {
+    flex: 2;
+}
+
+.friends-icon{
+    font-size: 35px !important;
+}
+
+.current-friend-container{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+textarea.materialize-textarea {
+    line-height: normal;
+    overflow-y: hidden;
+    padding: .8rem 0 .8rem 0;
+    min-height: 6rem;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
 ```
 
 
 
-11. Add posts and comments to your wall
+11. Add posts and comments
 
 11.1 Add a "New Post" section to the html in your profile page
 # This will include a form with a text area and a button that you will press to create a 
@@ -1073,14 +1157,64 @@ body {
 
 
 
+11.2 Add a Post and Comment models to your models.py.
+# We will now create the models to define each post and comment in 
+# your database. As with your CustomUser model above, we will then send this
+# data to your template.
+
+a) First, we will add a Post model to models.py
+```cd models.py```
+
+b) At the bottom of your file, below your CustomUser model, add the following to create the Post:
+```
+class Post(models.Model):
+    text = models.CharField(max_length=600)
+    datetime_posted = models.DateTimeField(auto_now=True)
+    likes = models.IntegerField(default=0)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    
+ 
+```
+c) Underneath the Post mode, add a Comment model:
+```
+class Comment(models.Model):
+    text = models.TextField(max_length=600)
+    datetime_posted = models.DateTimeField(auto_now=True)
+    likes = models.IntegerField(default=0)
+    author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+```
+
+d) Make migrations and then migration
+
+```cd sn/mysite```
+# To check the migrations, enter:
+```python manage.py makemigrations --dry-run``` 
+You should see an output similar to:
+Migrations for 'social_network_app':
+  social_network_app/migrations/0003_comment_post.py
+    - Create model Post
+    - Create model Comment
+
+If your output is similar to the above, make the migrations and then migrate by entering
+```python manage.py makemigrations -n added_Post_and_Comment_models```
+```python manage.py migrate```
+
+11.3
 
 
-11.2 Add a Post to your models
 
 
 
 
-11.3 Add 
+
+
+11.3 Show the posts and comments for each post in your user's profile
+# The app will show a user's posts and any comments on those post's 
+# on the user's profile page where that user was the author of the 
+# post.
+
+
 
 
 
