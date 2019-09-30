@@ -28,6 +28,8 @@ class Post(models.Model):
     likes = models.IntegerField(default=0)
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-datetime_posted']
 
 class Comment(models.Model):
     text = models.TextField(max_length=600)

@@ -797,6 +797,104 @@ Create a new user
 Log in!
 
 
+9.5 Update views.py to require any visitor to login before visiting a profile page
+Issue: Currently, any visitor to the page can visit any profile, regardless
+of whether that visitor is logged in. We will update our views.py to require a 
+login.
+
+To do the above, we will use a python construct called 'decorators'. Django provides 
+pre-built login decorators. We will add these login decorators to our views that 
+require a login. This will involve making each of our views require a logged in user,
+besides the login view and the signup view.
+
+Accordingly, update your views.py so that your code looks like:
+
+```
+from django.shortcuts import render, redirect
+from .models import CustomUser, Post
+from django.http import HttpResponse
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required    # Added
+
+@login_required	# Added
+def profile_view(request, username: str):
+    if request.method == 'POST':
+        if request.POST['text']:
+            text = request.POST['text']
+            Post.objects.create(
+                author=request.user,
+                text=text
+            )
+    user = CustomUser.objects.get(username=username)
+    return render(request, 'social_network_app/profile.html', {'user': user})
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user:
+            login(request, user=user)
+            return redirect('profile', username)
+        else:
+            return redirect('login')
+
+    else:  #  This covers the situation whereby the request.method == 'GET'.
+        if request.user.is_authenticated:
+            return redirect('profile', request.user.username)
+        else:
+            return render(request, 'social_network_app/login.html')
+
+
+@login_required  # Added
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+@login_required  # Added
+def add_friend_view(request):
+    if request.method == 'POST':
+        sender_pk = request.POST['current_user_pk']
+        recipient_pk = request.POST['profile_user_pk']
+        sender = CustomUser.objects.get(pk=sender_pk)
+        recipient = CustomUser.objects.get(pk=recipient_pk)
+        sender.friends.add(recipient)
+        return HttpResponse(status=200)
+
+
+def signup_view(request):
+    if request.method == 'POST':
+        CustomUser.objects.create_user(
+            first_name=request.POST['first_name'],
+            last_name=request.POST['last_name'],
+            username=request.POST['username'],
+            password=request.POST['password'],
+            email=request.POST['email']
+        )
+        return redirect('login')
+    else:
+        return render(request, 'social_network_app/signup.html')
+```
+
+9.6 Update settings.py
+# We will add the below two lines to the bottom of your ```settings.py```file
+# This will redirect the user after he or she logs in.
+
+```cd social-network/mysite/mysite/```
+open settings.py
+
+Add the below to settings.py:
+```
+# Custom login url and login redirect.
+# This is included to redirect the session to the login page if there is not a
+# logged in user.
+LOGIN_URL = '/social-network/login/'
+LOGIN_REDIRECT_URL = '/social-network/'
+```
+
+
+
 10. Add some styling!
 10.1 Update your profile template so that it contains the following:
 ```
@@ -1173,6 +1271,9 @@ class Post(models.Model):
     likes = models.IntegerField(default=0)
     author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     
+    
+    class Meta:
+        ordering = ['-datetime_posted']
  
 ```
 c) Underneath the Post mode, add a Comment model:
@@ -1200,19 +1301,276 @@ If your output is similar to the above, make the migrations and then migrate by 
 ```python manage.py makemigrations -n added_Post_and_Comment_models```
 ```python manage.py migrate```
 
-11.3
+
+11.3 Create forms.py to receive your data
+```cd mysite/social_network_app/```
+```touch forms.py``` # Create forms.py
+
+Add the following to your file:
+```
+from django import forms
+
+from .models import Post
 
 
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ('text',)
+```
 
 
-
-
-
-
-11.3 Show the posts and comments for each post in your user's profile
+11.4 Show the posts and comments for each post in your user's profile
 # The app will show a user's posts and any comments on those post's 
 # on the user's profile page where that user was the author of the 
 # post.
+
+
+
+a) Update your profile view in your views.py to process the newly received data from the html 
+template.
+
+Update your profile view to accord with the below:
+
+# views.py
+```
+@login_required
+def profile_view(request, username: str):
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            if text != '':
+                Post.objects.create(author=request.user, text=text)
+        return redirect('profile', username=username)
+    elif request.method == 'GET':
+        user = CustomUser.objects.get(username=username)
+        return render(request, 'social_network_app/profile.html', {'user': user})
+```
+
+
+b) Update your template to show the posts that each user has posted on their
+profile!
+
+Update your profile template to the below:
+
+# profile.html
+```
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+
+<body>
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="card top-container">
+    <div class="card-image waves-effect waves-block waves-light cover-photo-container">
+        <img class="cover-photo"
+             src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9"
+             alt="Cover picture image not found"
+        >
+    </div>
+    <div class="profile-picture-container card-content">
+           <div class="">
+<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture">
+<!-- notice the "circle" class -->
+           <div class="profile-name grey-text ">
+               {{ user.first_name }} {{ user.last_name }}
+           </div>
+               <div class="personal-details grey-text text-darken-5">
+                   <p><i>{{ user.email }}</i></p>
+                   <p><i>{{ user.username }}</i></p>
+               </div>
+               <div class="right add-friend-container">
+                    {% if request.user.pk != user.pk %}
+                        {% if request.user in user.friends.all %}
+                            <button>
+                        Is a friend! <i class="material-icons">person</i>
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
+                                <i class="material-icons">person_add</i>
+                            Add friend
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+            <div>
+
+            </div>
+        </div>
+    </div>
+    <div class="section-container">
+
+    </div>
+    <div class="section-container">
+        <div class="column-container-1">
+            <div class="column-container-1-item-size-one">
+                <div class="section-title">
+                    Interests
+                    <div class="section-text">
+                        <p>Rock sailing
+                            Water hiking
+                            Pit jumping
+                            Forest rafting
+                            Loud Shouting
+                        </p>
+                    </div>
+                </div>
+                <div class="section-title">Friends
+                    <i class="material-icons friends-icon">group</i>
+                </div>
+                {% if user.friends.all %}
+                    {% for friend in user.friends.all %}
+                        <a href="{% url 'profile' username=friend.username %}">
+                            <div class="row valign-wrapper current-friend-container">
+                                <button type="submit">
+                                    <div class="current-friend-card">
+                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <div class="black-text">
+                                            {{ friend.first_name }} {{ friend.last_name }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No friends yet</p>
+                {% endif %}
+            </div>
+
+            <div class="column-container-1-item-size-two">
+            {% if request.user.username == user.username %}
+                <div class="section-title">
+                    New post
+                </div>
+                <div>
+                    <form method="POST" class="input-field col ">{% csrf_token %}
+                        <label for="new-post"></label>
+                        <textarea id="new-post"
+                                  class="materialize-textarea"
+                                  placeholder="Type your new post"
+                                  name="text"
+                        >
+                        </textarea>
+                        <button type="submit" class="right">Post</button>
+                    </form>
+                </div>
+            {% endif %}
+                <div class="section-title">
+                   Wall
+                </div>
+                <div class="posts">
+                {% if user.post_set.exists %}
+                    {% for post in user.post_set.all %}
+                        <div class="post">
+                            <div class="text">{{ post.text }}</div>
+                            <div class="datetime">{{ post.datetime_posted }}</div>
+                            <div class="post-author">{{ post.author|capfirst }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <div>No posts yet!</div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+</script>
+<script type="text/javascript"
+        src="{% static 'social_network_app/js/profile.js' %}">
+</script>
+<!-- Compiled and minified JavaScript -->
+
+
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    const currentUser = '{{request.user.pk}}';
+    if (currentUser) {
+        addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
+    }
+</script>
+
+</body>
+</html>
+```
+
+c) Add more CSS to style your page
+Add the below CSS to the bottom of your ```profile.css```file
+
+```
+.post {
+    box-shadow: 0px 0px 2px 2px lightgrey;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.text {
+    text-align: left;
+    font-size: 18px;
+}
+
+.datetime {
+    font-size: 14px;
+    text-align: right;
+    color: lightgrey;
+    font-style: italic;
+    float: right;
+}
+
+.post-author {
+    font-size: 14px;
+    text-align: left;
+    color: lightgrey;
+    font-style: italic;
+}
+```
+
+Now check out your page. Each user is now able to add posts to his or her profile page
+
+
+
+
+
+
+
+12. Add an individual profile picture and cover photo for every user
+
+
 
 
 

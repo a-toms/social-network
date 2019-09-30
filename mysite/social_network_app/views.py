@@ -1,13 +1,22 @@
 from django.shortcuts import render, redirect
-from .models import CustomUser
+from .models import CustomUser, Post
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from .forms import PostForm
 
-
+@login_required
 def profile_view(request, username: str):
-    user = CustomUser.objects.get(username=username)
-    return render(request, 'social_network_app/profile.html', {'user': user})
-
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            if text != '':
+                Post.objects.create(author=request.user, text=text)
+        return redirect('profile', username=username)
+    elif request.method == 'GET':
+        user = CustomUser.objects.get(username=username)
+        return render(request, 'social_network_app/profile.html', {'user': user})
 
 def login_view(request):
     if request.method == 'POST':
@@ -19,7 +28,6 @@ def login_view(request):
             return redirect('profile', username)
         else:
             return redirect('login')
-
     else:  #  This covers the situation whereby the request.method == 'GET'.
         if request.user.is_authenticated:
             return redirect('profile', request.user.username)
@@ -27,11 +35,13 @@ def login_view(request):
             return render(request, 'social_network_app/login.html')
 
 
+@login_required
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 
+@login_required
 def add_friend_view(request):
     if request.method == 'POST':
         sender_pk = request.POST['current_user_pk']

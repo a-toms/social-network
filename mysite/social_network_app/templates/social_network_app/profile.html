@@ -50,8 +50,8 @@
                <div class="right add-friend-container">
                     {% if request.user.pk != user.pk %}
                         {% if request.user in user.friends.all %}
-                            <button>
-                        Is a friend! <i class="material-icons">person</i>
+                            <button type="button" class="btn waves-effect waves-light pink">
+                                Is a friend <i class="material-icons">person</i>
                             </button>
                         {% else %}
                             <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
@@ -108,21 +108,38 @@
             </div>
 
             <div class="column-container-1-item-size-two">
+            {% if request.user.username == user.username %}
                 <div class="section-title">
                     New post
                 </div>
                 <div>
-                    <div class="input-field col ">
-                        <textarea id="textarea2" class="materialize-textarea"></textarea>
-                        <label for="textarea2"></label>
-                    </div>
-                    <button class="right">Post</button>
+                    <form method="POST" class="input-field col ">{% csrf_token %}
+                        <label for="new-post"></label>
+                        <textarea id="new-post"
+                                  class="materialize-textarea"
+                                  placeholder="Type your new post"
+                                  name="text"
+                        >
+                        </textarea>
+                        <button type="submit" class="right">Post</button>
+                    </form>
                 </div>
+            {% endif %}
                 <div class="section-title">
-                    wall
+                   Wall
                 </div>
-                <div>
-                    {% lorem 100 w %}
+                <div class="posts">
+                {% if user.post_set.exists %}
+                    {% for post in user.post_set.all %}
+                        <div class="post">
+                            <div class="text">{{ post.text }}</div>
+                            <div class="datetime">{{ post.datetime_posted }}</div>
+                            <div class="post-author">{{ post.author|capfirst }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <div>No posts yet!</div>
+                {% endif %}
                 </div>
             </div>
         </div>
