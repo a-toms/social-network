@@ -1144,16 +1144,12 @@ body {
 
 
 .profile-picture-container {
-    margin-top: -4rem;
-}
-
-.profile-picture {
     border: 3px solid white;
     box-shadow: 0px 0px 2px 2px lightgrey;
-    margin-top: -5em;
     z-index: 1;
     position: relative;
 }
+
 
 .profile-name{
     margin-left: 13rem;
@@ -1408,8 +1404,8 @@ Update your profile template to the below:
                <div class="right add-friend-container">
                     {% if request.user.pk != user.pk %}
                         {% if request.user in user.friends.all %}
-                            <button>
-                        Is a friend! <i class="material-icons">person</i>
+                            <button type="button" class="btn waves-effect waves-light pink">
+                                Is a friend <i class="material-icons">person</i>
                             </button>
                         {% else %}
                             <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
@@ -1477,8 +1473,7 @@ Update your profile template to the below:
                                   class="materialize-textarea"
                                   placeholder="Type your new post"
                                   name="text"
-                        >
-                        </textarea>
+                        ></textarea>
                         <button type="submit" class="right">Post</button>
                     </form>
                 </div>
@@ -1560,17 +1555,299 @@ Add the below CSS to the bottom of your ```profile.css```file
 }
 ```
 
-Now check out your page. Each user is now able to add posts to his or her profile page
+# Now check out your page. Each user is now able to add posts to his or her profile page!
+# Notice how a user can only post a new post on his or her own page.
+
+
+12. Adding a Feed
+
+# Let's now create a 'Feed' page. This Feed will allow each user to see all of his/her posts
+# and friends' posts.
+
+We will follow the same approach as usual:
+-> Create a template
+-> Create a view, and
+-> Create a url route to connect the browser to the view and template
+
+# Note that you could do the above steps in any order. I normally prefer 
+# first to draft the user interface (the UI) that the user will see. This 
+# means that I normally start by writing the template, but this may vary :)
+
+a) Create a template for the feed
+```cd mysite/social_network_app/templates/social_network_app```
+```touch feed.html```
+
+Open feed.html. Then add the following:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+<body>
+<div class="feed-heading-container">
+    <div class="feed-heading-text">
+        Feed
+    </div>
+</div>
+<div class="feed-outer-container">
+    <div class="feed-inner-container-size-three"></div>
+    {% if feed_posts %}
+        {% for post in feed_posts %}
+            <a href="{% url 'profile' username=post.author.username %}">
+            <div class="feed-item-row">
+                <div class="feed-item-inner ">
+                    <div class="profile-picture-container">
+                        <img src="http://source.unsplash.com/random/75x75" alt=""
+                             class="circle responsive-img profile-picture-image">
+                    </div>
+                    <div class="post-author">
+                        <div></div>
+                        {{ post.author|capfirst }}
+                    </div>
+                </div>
+                <div class="feed-item-inner post-right">
+                    <div class="post-detail">
+                        <div class="text">{{ post.text }}</div>
+                        <div class="datetime">{{ post.datetime_posted }}</div>
+                    </div>
+                </div>
+            </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <div>You and your friends have no posts yet!</div>
+    {% endif %}
+    <div class="feed-inner-container-size-one"></div>
+</div>
+</body>
+</html>
+```
+
+b) Create a view
+Go to your ```views.py``` file.
+
+Add the below to the bottom of ```views.py``` (I have added comments with some explanation after the #; feel free to delete these!):
+
+```
+@login_required
+def feed_view(request):
+    if request.method == 'GET':
+        user = CustomUser.objects.get(username=request.user.username)  # Get the CustomUser instance of the current user.
+        user_posts = Post.objects.filter(author=user)  # Get the user's posts from the database.
+        print(user, user_posts)
+        friends_posts = Post.objects.filter(author__in=user.friends.all())  # Get the user's friends posts from the database.
+        feed_posts = user_posts | friends_posts  # Merge user_posts and friends_posts.
+        return render(request, 'social_network_app/feed.html', {'feed_posts': feed_posts})  # Render the template and send the feed posts to the template.
+```
+
+c) Add a url route in your ``ùrls.py``
+Go to your ```mysite/social_network_app/urls.py``` file.
+
+Update your urls to add the new url at the bottom of the file:
+```
+from django.urls import path
+
+from . import views
+
+urlpatterns = [
+    path('profile/<str:username>', views.profile_view, name='profile'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('add-friend/', views.add_friend_view, name='add-friend'),
+    path('signup/', views.signup_view, name='signup'),
+    path('feed/', views.feed_view, name='feed'),  # The new url
+]
+```
+
+Check out the Feed at the url that you defined, i.e., /social-network/feed/ !
+It is great to see the feed. However, let us make it more visually appealing 
+with styling.
+
+d) Style the template
+
+In the same way as with our profile template, create a css file for the feed template.
+```cd mysite/social_network_app/static/social_network_app/css/```
+```touch feed.css```
+
+Copy and paste the below CSS into ```feed.css```:
+
+
+```
+body {
+    background-color: #fff0f005;
+}
+
+.feed-heading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.feed-heading-text {
+    font-size: 60px;
+    display: block;
+    margin-top: -40px;
+}
+
+
+
+.feed-outer-container {
+    flex-direction: column;
+    text-align: center;
+    width: 42%;
+    margin: auto;
+}
+
+.feed-inner-container-size-one{
+    flex: 1
+}
+
+.feed-inner-container-size-three {
+    flex: 3
+}
+
+.feed-item-row {
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0px 2px 6px 0px lightgrey;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    padding-top: 10px;
+    border-radius: 10px;
+    background-color: #fff8f8;
+    color: #d673e5;
+}
+
+.feed-item-row:hover {
+    background-color: #ee6e6ef2;
+    transition: background-color 0.3s;
+    color: white;
+}
+
+
+.post-right{
+    width: 100%;
+}
+
+.post {
+    box-shadow: 0px 0px 2px 2px lightgrey;
+    border-radius: 15px;
+    padding: 28px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.text {
+    text-align: left;
+    font-size: 18px;
+}
+
+.datetime {
+    font-size: 14px;
+    text-align: right;
+    color: lightgrey;
+    font-style: italic;
+    float: right;
+    padding-right: 27px;
+}
+
+.post-author {
+    font-size: 14px;
+    text-align: left;
+    font-style: italic;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.post-detail {
+    padding-top: 10px;
+    padding-bottom: 22px;
+    padding-left: 10px;
+}
+
+.profile-picture-container{
+    padding-left: 10px;
+}
+
+.profile-picture-image{
+    box-shadow: 0px 1px 0px 3px #7d6c6e38;
+}
+```
 
 
 
 
 
 
+e) Connect the CSS file to the template by adding the below line to anywhere between the first <head> tag and the first </head> tag
+in your ```feed.html``` template:
+```
+<link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/feed.css' %}">
+```
 
-12. Add an individual profile picture and cover photo for every user
+Add the below line immediately above the first <head> tag in your ```feed.html``` template:
+```
+{% load static %}
+```
+
+f) Finally, we'll add links to the feed in the ```profile.html```and ```feed.html``` templates:
+
+# In your ```profile.html```, add the following line to the commented position in the block below:
+Add this: ```<li><a href="{% url 'feed' %}">Feed</a></li>```
 
 
+In here:
+```
+<div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'feed' %}"><i class="material-icons">Feed</i></a></li>
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+            ...
+```
+
+In your ```feed.html```, add the same line in the same position.
+
+
+# Congratulations - our basic social network app is taking shape!
+# TD: Point about duplicating -> DRY
+
+
+
+
+13. Add an individual profile picture and cover photo for every user
+
+# Currently, all user's profile pictures are randomly fetched from an online photo bank.
+# We want each user to be able to select images as the user's profile picture and cover photo
+# To do this, we will store urls to the images in our database. The user may specify these
+# image urls when they signup.
+
+
+a) Add 
 
 
 

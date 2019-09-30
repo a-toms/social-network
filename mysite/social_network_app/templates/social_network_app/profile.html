@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
-
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta charset="UTF-8">
     <title>User Profile</title>
@@ -16,6 +15,7 @@
     <div class="nav-wrapper">
         <a href="#" class="brand-logo">The Social Network</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'feed' %}">Feed</a></li>
             <li><a href=""></a></li>
             {% if request.user.username %}
                 <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
@@ -38,7 +38,7 @@
     </div>
     <div class="profile-picture-container card-content">
            <div class="">
-<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture">
+<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture-container">
 <!-- notice the "circle" class -->
            <div class="profile-name grey-text ">
                {{ user.first_name }} {{ user.last_name }}
@@ -119,8 +119,7 @@
                                   class="materialize-textarea"
                                   placeholder="Type your new post"
                                   name="text"
-                        >
-                        </textarea>
+                        ></textarea>
                         <button type="submit" class="right">Post</button>
                     </form>
                 </div>

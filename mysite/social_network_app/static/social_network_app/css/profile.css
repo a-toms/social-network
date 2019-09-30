@@ -85,10 +85,9 @@ body {
     margin-top: -4rem;
 }
 
-.profile-picture {
+.profile-picture-container {
     border: 3px solid white;
     box-shadow: 0px 0px 2px 2px lightgrey;
-    margin-top: -5em;
     z-index: 1;
     position: relative;
 }
@@ -208,3 +207,4 @@ textarea.materialize-textarea {
     color: lightgrey;
     font-style: italic;
 }
+

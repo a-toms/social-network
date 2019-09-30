@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/feed.css' %}">
+</head>
+
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'feed' %}">Feed</a></li>
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+<body>
+<div class="feed-heading-container">
+    <div class="feed-heading-text">
+        Feed
+    </div>
+</div>
+<div class="feed-outer-container">
+    <div class="feed-inner-container-size-three"></div>
+    {% if feed_posts %}
+        {% for post in feed_posts %}
+            <a href="{% url 'profile' username=post.author.username %}">
+            <div class="feed-item-row">
+                <div class="feed-item-inner ">
+                    <div class="profile-picture-container">
+                        <img src="http://source.unsplash.com/random/75x75" alt=""
+                             class="circle responsive-img profile-picture-image">
+                    </div>
+                    <div class="post-author">
+                        <div></div>
+                        {{ post.author|capfirst }}
+                    </div>
+                </div>
+                <div class="feed-item-inner post-right">
+                    <div class="post-detail">
+                        <div class="text">{{ post.text }}</div>
+                        <div class="datetime">{{ post.datetime_posted }}</div>
+                    </div>
+                </div>
+            </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <div>You and your friends have no posts yet!</div>
+    {% endif %}
+    <div class="feed-inner-container-size-one"></div>
+</div>
+</body>
+</html>

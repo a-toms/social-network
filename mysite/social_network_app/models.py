@@ -13,6 +13,8 @@ class CustomUser(AbstractUser):
             'unique': ("A user with that username already exists.",),
         },
     )
+    cover_picture = models.URLField(max_length=400)
+    profile_picture = models.URLField(max_length=400)
     email = models.EmailField(blank=False, null=False, unique=True)
     first_name = models.CharField(max_length=30, blank=False, null=False)
     last_name = models.CharField(max_length=150, blank=False, null=False)

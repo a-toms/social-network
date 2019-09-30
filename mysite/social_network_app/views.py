@@ -59,10 +59,19 @@ def signup_view(request):
             last_name=request.POST['last_name'],
             username=request.POST['username'],
             password=request.POST['password'],
-            email=request.POST['email']
+            email=request.POST['email'],
+
         )
         return redirect('login')
     else:
         return render(request, 'social_network_app/signup.html')
 
-
+@login_required
+def feed_view(request):
+    if request.method == 'GET':
+        user = CustomUser.objects.get(username=request.user.username)  # Get the CustomUser instance of the current user.
+        user_posts = Post.objects.filter(author=user)  # Get the user's posts from the database.
+        print(user, user_posts)
+        friends_posts = Post.objects.filter(author__in=user.friends.all())  # Get the user's friends posts from the database.
+        feed_posts = user_posts | friends_posts  # Merge user_posts and friends_posts.
+        return render(request, 'social_network_app/feed.html', {'feed_posts': feed_posts})  # Render the template and send the feed posts to the template.
