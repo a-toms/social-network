@@ -1,6 +1,5 @@
-html {
-    /*min-width: 1200px;*/
-    /*max-width: 1200px;*/
+body {
+    background: #fffcfc;
 }
 
 img {
@@ -13,15 +12,6 @@ body {
     background-image: linear-gradient(to right, rgba(29, 112, 255, 0.31));
 }
 
-
-.nav-wrapper{
-    top: 0;
-    z-index: 2;
-    font-size: 18px;
-    display: flex;
-    width: 100%;
-    height: 4rem;
-}
 
 .nav-bar {
     display: flex;
@@ -37,10 +27,7 @@ body {
 }
 
 .nav-element {
-    font-family: 'mono';
     font-size: 24px;
-    background-color: rgba(255, 255, 255, 0.71);
-
 }
 
 
@@ -52,15 +39,172 @@ body {
     flex: 1;
 }
 
-.cover-photo {
-    margin-top: 3.65em;
-    width: 100%;
-    display: flex;
-    position: absolute;
+.top-container {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+    z-index: -1;
+    position: absolute !important;
     left: 0;
     right: 0;
 }
 
+.cover-photo-container{
+    width: 100%;
+}
+
+
+.cover-photo {
+    display: block;
+    border-radius: 2px 2px 0 0;
+    object-fit: cover;
+    bottom: 0;
+}
+
+.card {
+    position: absolute;
+    background-color: #fff;
+    -webkit-transition: -webkit-box-shadow .25s;
+    transition: -webkit-box-shadow .25s;
+    border-radius: 2px;
+}
+.card-image {
+    top: -60px
+}
+
+.card-content {
+    padding-top: 24px;
+    padding-left: 24px;
+    padding-right: 24px;
+    padding-bottom: 10px;
+}
+
+
+.profile-picture-container {
+    margin-top: -4rem;
+}
+
+.profile-picture-container {
+    border: 3px solid white;
+    box-shadow: 0px 0px 2px 2px lightgrey;
+    z-index: 1;
+    position: relative;
+}
+
+.profile-name{
+    margin-left: 13rem;
+    margin-top: -7rem;
+    margin-bottom: 5em;
+    font-size: 24px;
+}
+
+.personal-details {
+    margin-left: 13rem;
+    margin-top: -8rem;
+    font-size: 16px;
+    padding-bottom: 20px;
+}
+
+
+.add-friend-container {
+    margin-top: -9rem;
+}
+
+#add-friend-button {
+    font-size: 13px;
+    border-radius: 3px;
+}
+
+
+.body-container{
+    display: flex;
+    flex-direction: column;
+}
+
 .container {
+    flex: 1;
+    flex-direction: column;
+}
+
+.column-item{
+    flex: 1;
+    width: 33%;
+}
+
+.section-title {
+    font-size: 2.92rem;
+    line-height: 80%;
+    margin: 1.9466666667rem 0 1.168rem 0;
+}
+
+.section-text {
+    font-size: 16px;
+}
+
+.btn {
+    cursor: pointer;
+}
+
+.column-container-1 {
+    display: flex;
+    width: 95%;
+    text-align: left;
+    margin: auto;
+}
+
+.column-container-1-item-size-one {
+    flex: 1;
+}
+
+.column-container-1-item-size-two {
+    flex: 2;
+}
+
+.friends-icon{
+    font-size: 35px !important;
+}
+
+.current-friend-container{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}
+
+textarea.materialize-textarea {
+    line-height: normal;
+    overflow-y: hidden;
+    padding: .8rem 0 .8rem 0;
+    min-height: 6rem;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.post {
+    box-shadow: 0px 0px 2px 2px lightgrey;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.text {
+    text-align: left;
+    font-size: 18px;
+}
+
+.datetime {
+    font-size: 14px;
+    text-align: right;
+    color: lightgrey;
+    font-style: italic;
+    float: right;
+}
+
+.post-author {
+    font-size: 14px;
+    text-align: left;
+    color: lightgrey;
+    font-style: italic;
 }
 

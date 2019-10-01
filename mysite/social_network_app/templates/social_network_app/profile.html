@@ -2,66 +2,149 @@
 <html lang="en">
 {% load static %}
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
     <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
     <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta charset="UTF-8">
     <title>User Profile</title>
 </head>
 
 <body>
-<div class="nav-wrapper">
-    <nav class="nav-bar">
-        <div class="box nav-element">The Social Network</div>
-        <div class="box nav-element"></div>
-        <div class="box nav-element">
-            <div class="current-user">{{ request.user.first_name }}
-                <a href="{% url 'logout' %}">
-                    <button class="item-one">
-                        Logout
-                    </button>
-                </a>
-            </div>
-    </nav>
-</div>
-    <div class="item-one cover-photo">
-        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1200&h=300&fit=crop&ixid=eyJhcHBfaWQiOjF9"
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'feed' %}">Feed</a></li>
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="card top-container">
+    <div class="card-image waves-effect waves-block waves-light cover-photo-container">
+        <img class="cover-photo"
+             src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9"
              alt="Cover picture image not found"
-        />
+        >
+    </div>
+    <div class="profile-picture-container card-content">
+           <div class="">
+<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture-container">
+<!-- notice the "circle" class -->
+           <div class="profile-name grey-text ">
+               {{ user.first_name }} {{ user.last_name }}
+           </div>
+               <div class="personal-details grey-text text-darken-5">
+                   <p><i>{{ user.email }}</i></p>
+                   <p><i>{{ user.username }}</i></p>
+               </div>
+               <div class="right add-friend-container">
+                    {% if request.user.pk != user.pk %}
+                        {% if request.user in user.friends.all %}
+                            <button type="button" class="btn waves-effect waves-light pink">
+                                Is a friend <i class="material-icons">person</i>
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
+                                <i class="material-icons">person_add</i>
+                            Add friend
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+            <div>
+
+            </div>
+        </div>
+    </div>
+    <div class="section-container">
+
+    </div>
+    <div class="section-container">
+        <div class="column-container-1">
+            <div class="column-container-1-item-size-one">
+                <div class="section-title">
+                    Interests
+                    <div class="section-text">
+                        <p>Rock sailing
+                            Water hiking
+                            Pit jumping
+                            Forest rafting
+                            Loud Shouting
+                        </p>
+                    </div>
+                </div>
+                <div class="section-title">Friends
+                    <i class="material-icons friends-icon">group</i>
+                </div>
+                {% if user.friends.all %}
+                    {% for friend in user.friends.all %}
+                        <a href="{% url 'profile' username=friend.username %}">
+                            <div class="row valign-wrapper current-friend-container">
+                                <button type="submit">
+                                    <div class="current-friend-card">
+                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <div class="black-text">
+                                            {{ friend.first_name }} {{ friend.last_name }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No friends yet</p>
+                {% endif %}
+            </div>
+
+            <div class="column-container-1-item-size-two">
+            {% if request.user.username == user.username %}
+                <div class="section-title">
+                    New post
+                </div>
+                <div>
+                    <form method="POST" class="input-field col ">{% csrf_token %}
+                        <label for="new-post"></label>
+                        <textarea id="new-post"
+                                  class="materialize-textarea"
+                                  placeholder="Type your new post"
+                                  name="text"
+                        ></textarea>
+                        <button type="submit" class="right">Post</button>
+                    </form>
+                </div>
+            {% endif %}
+                <div class="section-title">
+                   Wall
+                </div>
+                <div class="posts">
+                {% if user.post_set.exists %}
+                    {% for post in user.post_set.all %}
+                        <div class="post">
+                            <div class="text">{{ post.text }}</div>
+                            <div class="datetime">{{ post.datetime_posted }}</div>
+                            <div class="post-author">{{ post.author|capfirst }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <div>No posts yet!</div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-    <div class="item">
-        {{user.first_name}} {{user.last_name}}
-        {% if request.user.pk != user.pk %}
-            {% if request.user in user.friends.all %}
-                <button>
-                    Is a friend!
-                </button>
-            {% else %}
-                <button id="add-friend-button">
-                    Add as friend
-                </button>
-            {% endif %}
-        {% endif %}
-    </div>
-    <div class="item-one">
-        <p>Username: {{user.username}}</p>
-        <p>Email address: {{user.email}}</p>
-    </div>
-    <div>
-        <div class="item-one">
-            <h3>Friends:</h3>
-            {% if user.friends.all %}
-                {% for friend in user.friends.all %}
-                    <p>{{friend.username}}</p>
-                {% endfor %}
-            {% else %}
-                <p>No friends yet</p>
-            {% endif %}
-        </div>
-        <br>
-    </div>
-    </div>
+</div>
 
 <script src="https://code.jquery.com/jquery-3.4.1.min.js"
         integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -70,10 +153,15 @@
 <script type="text/javascript"
         src="{% static 'social_network_app/js/profile.js' %}">
 </script>
+<!-- Compiled and minified JavaScript -->
+
 
 <script>
     const csrfToken = '{{ csrf_token }}';
-    addClickListenerToAddFriendButton({{request.user.pk}}, {{user.pk}}, csrfToken);
+    const currentUser = '{{request.user.pk}}';
+    if (currentUser) {
+        addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
+    }
 </script>
 
 </body>

@@ -109,3 +109,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AUTH_USER_MODEL = 'social_network_app.CustomUser'
+
+# Custom login url and login redirect.
+# This is included to redirect the session to the login page if there is not a
+# logged in user.
+LOGIN_URL = '/social-network/login/'
+LOGIN_REDIRECT_URL = '/social-network/'
