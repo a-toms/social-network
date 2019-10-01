@@ -1,10 +1,17 @@
-Create django project and django app
+
+Create a Social Network with Django!
+--
+
+Introduction explanation by Tom:
+- What is a web page? 
+- What is a web app? 
+- What is Django? 
+- What is the Django ORM?
 
 
-What is a web page? 3mins
-What is a web app? 3mins
-What is Django? 1min
-What is the Django ORM? 2mins
+*Tutorial*
+-
+First ensure that you have installed python (following the instructions at https://tutorial.djangogirls.org/en/installation/#virtual-environment)
 
 Today's aim is to create a basic social network app that will run locally, and that you 
 could easily expand and deploy online. 
@@ -15,22 +22,39 @@ There are many web frameworks. Django is particularly robust, scalable, and has 
 documentation. The process of creating an app with Django is similar to creating a web 
 app with another web framework.
 
-How to become proficient?
-Deliberate practice.
+
+A. Install Django 
+--
+
+ - Open Pycharm Professional
+ - Select File > New Project > Pure python
+ - Open the terminal by selecting the terminal button in Pycharm
+ (Tom explains virtual environment)
+ - Into the terminal, enter ```pip install django```
+ 
+B. Create Django Project
+--
+- In the terminal enter:
+```django-admin startproject mysite```
+- Then enter:```cd mysite```
+- Then enter: ```django-admin startapp social_network_app```
+
+Nice - You have just created the django site and the django app that 
+will interact with the site.
+
+- Run your server by entering the following into your terminal in the same directory
+as ```manage.py```
+```python manage.py runserver```
+- Visit your installed django site! 
+
+---
+Now we will connect the app to the site:
 
 
-Use Brave, Chrome, or Firefox
-Complete Django Girls tutorial beforehand
+1. Add app to the site-level settings by opening```mysite/mysite/settings.py```
+2. In ````settings.py```` update your INSTALLED_APPS to read:
 
-
-TD Notes
-- Expect spelling mistakes from the participants
-
-1. Add app to the site-level settings
-1.1 Open ```mysite/mysite/settings.py```
-2. Update your INSTALLED_APPS to read:
-
-``
+```
 INSTALLED_APPS = [
     'social_network_app',
     'django.contrib.admin',
@@ -40,11 +64,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-``
+```
 
-2.Create custom user
-2.1.Create custom user in models.py
-``
+<h3> Create your first model </h3>
+Create your custom user:
+
+- Open ```models.py```in ```mysite/social_network_app/``
+
+- Create custom user in models.py by adding the below:
+```
 class CustomUser(AbstractUser):
     username = models.CharField(
         max_length=150,
@@ -62,15 +90,17 @@ class CustomUser(AbstractUser):
 
     def __str__(self) -> str:
         return self.username
-``
+```
 
-2.2. Update ```mysite/mysite/settings.py```
-Add ```AUTH_USER_MODEL = 'social_network_app.CustomUser'``` on a new line at the bottom
-of the file.
+1. Update ```mysite/mysite/settings.py``` to recognise the new user model.
+(Note that User models have special requirements in Django compared to other models)
 
-2.3. Create migrations and migrate
-run ```cd sn/mysite/``
-run ```python manage.py makemigrations --dry-run``` # This command shows what migrations would be made.
+- To do this, add ```AUTH_USER_MODEL = 'social_network_app.CustomUser'``` on a new line at the bottom
+of your ```settings.py``` file.
+
+3. Create migrations and migrate
+- Move to your manage.py director: ```cd sn/mysite/``
+- Run ```python manage.py makemigrations --dry-run```. This command shows what migrations would be made.
 
 You should see something like:
 ```
@@ -79,31 +109,33 @@ Migrations for 'social_network_app':
     - Create model CustomUser
 ```
 
-Then create the migrations and then migrate those created migrates to your database.
-```python manage.py makemigrations -n adding_CustomUser```
-```python manage.py migrate```
+- Then create the migrations for real and then migrate those created migrations to your database.
+  - ```python manage.py makemigrations -n adding_CustomUser```
+  - ```python manage.py migrate```
 
 This will migrate the migration that you have just made, and will migrate the pre-built 
 initial migrations that Django creates when you create a new project.
 
+Create your first template
+---
+In Django, templates provide the structure for the HTML pages that your visitors will see in their browsers.
 
+- Tom to explain briefly Django's overarching MVT structure. This involves models -> views -> templates 
 
+To create your first template:
 
+1 - Create the folder structure and the template html file:
 
+ - ```cd mysite/social_network_app/```  # Change directory to your app
+ - ```mkdir templates```  # Creates the templates folder
+ - ```cd mysite/social_network_app/templates``` # Change directory
+ - ```mkdir social_network_app``` # Creates the folder
+ - ```cd mysite/social_network_app/templates/social_network_app``` # Change directory
+ - ```touch profile.html`` # Create a file called profile.html
 
-3. Create template to display the user on a page
-The templates structure the HTML pages that your visitors will see in their browsers.
-
-3.1 -> Create the folder structure and the template html file
-cd mysite/social_network_app/  # Change directory
-mkdir templates  # Creates the folder
-cd mysite/social_network_app/templates # Change directory
-mkdir social_network_app # Creates the folder
-cd mysite/social_network_app/templates/social_network_app # Change directory
-touch profile.html # Create a file called profile.html
-
-3.2 -> Add HTML to the template
-Paste the below HTML into profile.html. Replace anything that profile.html contained previously.
+ 2 - Add HTML to the template:
+ 
+Paste the below HTML into your ```profile.html```. Replace anything that profile.html contained previously.
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -138,14 +170,16 @@ Paste the below HTML into profile.html. Replace anything that profile.html conta
 </html>
 ```
 
+3 - Now we will send information from your database to the template using a view.
 
-4. Send information from your database to the template using a view.
+3.1 - Create a view:
+ 
+Django uses views to send the information from your database to your templates, 
+and for you to retrieve information from your database.
 
-4.1 -> Create a view 
-views will send information from your database to your templates.
-
-open ```social_network_app/views.py```
-update the file so that it reads:
+To create your first view,
+ - open ```mysite/social_network_app/views.py```
+ - update the file so that it reads:
 ```
 from django.shortcuts import render
 
@@ -154,14 +188,18 @@ def profile_view(request):
     return render(request, 'social_network_app/profile.html', {})
 ```
 
-5. Add a url routing 
+4 - Add a url routing:
+
 Adding a url routing will provide an address for your user to visit the page that views.py 
 and your template create.
 
-5.1 -> Add a url route for your site
-cd sn/mysite/mysite
+4.1 - Add a url route for your <i>site</i> by entering:
+```
+cd /mysite/mysite/
 open urls.py
-update your file so that it reads:
+```
+
+- Update your ```mysite/urls.py``` file so that it reads:
 ```
 from django.contrib import admin
 from django.urls import path, include
@@ -172,12 +210,14 @@ urlpatterns = [
 ]
 ```
 
-5.2 -> Add a url route for your social network app profile
+4.2 - Add a url route for your social network app profile
 
-cd sn/mysite/social_network_app
-touch urls.py  # Create urls.py
-open urls.py
-update the file so that it reads:
+
+ - `cd /mysite/social_network_app`
+ - `touch urls.py`  # Create urls.py
+ - open urls.py
+ - update the file so that it reads:
+ 
 ```
 from django.urls import path
 
@@ -189,38 +229,47 @@ urlpatterns = [
 ```
 
 5.3 -> Run your server and visit your created profile page!
-cd sn/mysite/
-python manage.py runserver
-open your browser at the given url # This address will be http://127.0.0.1:8000/social-network/profile/
-observe your web app's page!
 
-# If you encounter a template error, it is likely that you have mispelled a path to the profile
-# template. If you encounter a page not found error, it is likely that you have mispelled the 
-# one or more of the urls.
+`cd /mysite/`
 
+`python manage.py runserver`
 
-6. Create an admin page for your app
+- Open your browser at the given url. This address will be http://127.0.0.1:8000/social-network/profile/
+- Observe your web app's page!
 
-6.1 -> Create a superuser via the terminal.
-This superuser follows your CustomUser model that you defined in models.py.
+Note: If you encounter a template error, it is likely that you have mispelled a path to the profile
+template. If you encounter a page not found error, it is likely that you have mispelled the 
+one or more of the urls.
+
+---
+
+Create an admin page for your app
+--
+We will now create a superuser via the terminal.
+This superuser implements your CustomUser model that you defined in models.py.
 We will create a superuser with special admin permissions below. We will create other users
 in a simpler way later.
 
-To create your first superuser, in your terminal:
-```cd sn/mysite/```
-```python manage.py createsuperuser```
+To create your first superuser, enter in your terminal:
+
+- ```cd /mysite/```
+- ```python manage.py createsuperuser```
+
 Add the following details for the new superuser:
+```
 username=redmark
 email=fast@mail.com
 password=rocksalt1
+```
 
-# Note that one could use any details for the above. However, I recommend using the 
-# above details to avoid unnecessary additional detail.
+Note that we could use any details for the above. However, I recommend using the 
+above details to avoid unnecessary additional detail.
  
-6.2 -> Create an admin page and register your first model
-```cd sn/mysite/social_network_app/```
-Open admin.py
-update the file so that it reads:
+1 - Create an admin page and register your first model:
+
+- ```cd sn/mysite/social_network_app/```
+- Open admin.py
+- Update the file so that it reads:
 
 ```
 from django.contrib import admin
@@ -232,38 +281,48 @@ from .models import CustomUser
 admin.site.register(CustomUser, UserAdmin)
 ```
 
+2 - Visit your site's admin page and login using your superuser's details.
 
-6.3 -> visit your site's admin page and login using your superuser's details.
 Restart your server:
-```cd sn/mysite/```
-```python manage.py createsuperuser```
-Visit ```http://127.0.0.1:8000/admin``` in your browser and enter your superuser's login details
-# Welcome to the django admin site! This automatically generated admin site provides 
-# a graphical user interface that you may use to create new model instances (e.g., CustomUsers).
-Click on 'Users'
-Click on 'add new User'
 
-Add the following details for the new user:
+```cd /mysite/```
+
+```python manage.py createsuperuser```
+
+Visit ```http://127.0.0.1:8000/admin``` in your browser and enter your superuser's login details. 
+Welcome to the django admin site! This automatically generated admin site provides 
+a graphical user interface that you may use to create new model instances (e.g., CustomUsers).
+
+- Click on 'Users'
+- Click on 'add new User'
+- Add the following details for the new user:
+```
 username=nightcat1
 password=rocksalt1
-Click SAVE
+```
+- Click SAVE
 
-Then enter the following:
+- Then enter the following details for the user
+```
 first_name=(Enter your first name)
 last_name=(Enter your last name)
 email=fast@mail.com
+```
+- Then scroll down and click save.
 
-Then scroll down and click save.
-
-# Congratulations! You have just added a user to your database in accordance with the 
-# database structure that you defined earlier in models.py!
+Congratulations! You have just added a user to your database in accordance with the 
+database structure that you defined earlier in models.py!
 
 
-7. Create a profile page for that user
 
-7.1 -> Set the apps urls.py to send the user's username in an url address to views.py
-Go to urls.py ```cd sn/mysite/social_network_app/urls.py```
-Update your file so that it reads:
+Create a profile page for our user
+--
+
+We will now set our app's ```urls.py``` to send the user's username in an url address to views.py
+
+1. To add the new url route:
+- Go to urls.py ```cd sn/mysite/social_network_app/urls.py```
+- Update your file so that it reads:
 ```
 from django.urls import path
 
@@ -274,9 +333,11 @@ urlpatterns = [
 ]
 ```
 
-7.2 -> Change your views to receive a user's username from the address
-Go to views.py ```cd sn/mysite/social_network_app/views.py```
-Update your views file so that it reads:
+2 -> Update your views to receive a user's username from the address.
+To do this:
+
+- Go to views.py ```cd /mysite/social_network_app/views.py```
+- Update your views file so that it reads:
 ```
 from django.shortcuts import render
 from .models import CustomUser
@@ -288,9 +349,11 @@ def profile_view(request, username: str):
 ```
 
 
-7.3 -> Update your template to use the data in the newly received user model instance to render the particular user's profile page.
-Open your template at ``mysite/social_network_app/templates/social_network_app/profile.html``.
-Update your file so that it contains:
+3 - Update your template to use the data in the newly received user model instance to render the particular user's profile page.
+
+To do this:
+- Open your template at ``mysite/social_network_app/templates/social_network_app/profile.html``
+- Update your file so that it contains:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -326,14 +389,19 @@ Update your file so that it contains:
 ```
 
 Restart your server (```python manage.py runserver```) and visit your server at ```http://127.0.0.1:8000/social-network/profile/nightcat1```and refresh your page.
-(If no change, check that your browser's caching is disabled)
+Nice job so far!
+
+(If no change, check that your browser's caching is disabled in your browser's settings)
+
+Login and Logout
+--
+We will now enable the user to login and to logout.
+ 
+1  - To do this we will first, update the urls to create a login url address.
 
 
-8a. Enable the user to login and to logout 
-8.1 Update the urls to create a login url address.
-
-```cd mysite/social_network_app/urls.py```
-Update urls.py so that it  matches the below:
+ - ```cd mysite/social_network_app/urls.py```
+ - Update urls.py so that it  matches the below:
 ```
 from django.urls import path
 
@@ -346,10 +414,10 @@ urlpatterns = [
 ]
 ```
 
-8.2 -> Create a login template
-Add the following file at ```mysite/social_network_app/templates/social_network_app/login.html```
-
-Copy the below html into the file. Replace anything that is already in the file.
+2 - Create a login template
+To do this we will:
+ - Create a new file at ```mysite/social_network_app/templates/social_network_app/login.html```
+ - Copy the below html into the file. Replace anything that is already in the file.
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -391,10 +459,13 @@ Copy the below html into the file. Replace anything that is already in the file.
 ```
 
 
-8.4 -> Update your profile template to add a logout button
+ - Update your profile template to add a logout button:
+ 
 ```cd mysite/social_network_app/templates/social_network_app/profile.html```
 
-Update the file so that it contains the below:
+
+Update the ```profile.html``` so that it contains the below:
+
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -443,9 +514,10 @@ Update the file so that it contains the below:
 ```
 
 
-8.3 Create a login view to interact with the login template
-a. Open views.py
-b. Update the file to include the below:
+Now we will create a login view to interact with the login template
+To do this we will:
+ - Open ```views.py```
+ - Update the our views.py to include the below:
 ```
 from django.shortcuts import render, redirect
 from .models import CustomUser
@@ -476,8 +548,8 @@ def login_view(request):
             return render(request, 'social_network_app/login.html')
 ```
 
-c. Create a logout view that will allow the user to logout. 
-To do this, add the below at the end of views.py
+We will now create a logout view that will allow the user to logout. 
+- To do this, add the below at the end of views.py`:
 
 ```
 def logout_view(request):
@@ -485,29 +557,35 @@ def logout_view(request):
     return redirect('login')
 ```
 
-8.4 Visit your user's profile page, logout, and login!
-Go to ```http://127.0.0.1:8000/social-network/profile/redmark```
-Press the logout button. 
-Notice that your app sends you to your newly created login page!
-Login again.  
+Now we will visit your user's profile page, logout, and login! To do this:
+- Go to ```http://127.0.0.1:8000/social-network/profile/redmark```
+- Press the logout button. 
+- Notice that your app sends you to your newly created login page!
+- Login again!  
 
-# If you are unable to login, it is likely that : a) you have entered the wrong details, 
-# or b) you created your users with different login details than suggested above. 
-# To remedy this, follow the guidance earlier in the tutorial to create another user and 
-# try again with those details. Remember that you specified in models.py that each 
-# user's username and email must be unique.
+TD Troubleshooting:
+If you are unable to login, it is likely that: a) you have entered the wrong details, 
+or b) you created your users with different login details than suggested above. 
+To remedy this, follow the guidance earlier in the tutorial to create another user and 
+try again with those details. Remember that we specified in `models.py that each 
+user's username and email must be unique.
 
 
 
-8. Make friends
-8.1 -> Update custom user model to create a field that links to other users. 
-# The link that we will use is called a 'Many to Many' connection. As the name implies,
-# a m2m field may connect many database entries to many other database entries.
+<h1>Part 2 - Make friends</h1>
+---
+We want to allow our users to add each other as friends. 
 
-# Because each user's friends will be other users, we will create a m2m model that links 
-# to itself (a recursive connection).
 
-models.py
+The link that we will use is called a 'Many to Many' connection. As the name implies,
+a m2m field may connect many database entries to many other database entries.
+Because each user's friends will be other users, we will create a m2m model that links to itself (a recursive connection).
+(+ brief database connections explanation by Tom)
+
+
+To do this we will first update your CustomUser model to create a field that links to other users. 
+
+ 1 - Update your `social_network_app/models.py` to include the following:
 
 ```
 from django.db import models
@@ -534,21 +612,28 @@ class CustomUser(AbstractUser):
         return str(self.username)
 ```
 
-8.2 -> Update your database by migrating your model changes.
+2 - Now update your database by migrating your model changes with our trusty `manage.py`:
 
-```cd sn/mysite/```
-```python manage.py makemigrations -n add_friends_field_to_User```
-```python manage.py migrate```
+- ```cd /mysite/```
+- ```python manage.py makemigrations -n add_friends_field_to_User```
+- ```python manage.py migrate```
 
+---
 
-8.1 -> Add html to your template that will show your friends
-# Now let's update your profile template to:
-# a) show the user's name as the the current user, rather the user's username, and
-# b) show an 'add as friend' button if the profile is not the current user's profile
-# c) show each user's friends
+3 - Add html to your template that will show your friends:
 
-Open your template at ```mysite/social_network_app/templates/social_network_app/profile.html```.
-Update your file so that it contains:
+Now let's update your profile template to:
+
+a) show the user's name as the the current user, rather the user's username, and
+
+b) show an 'add as friend' button if the profile is not the current user's profile
+
+c) show each user's friends
+
+Update template:
+To do this: 
+- Open your template at ```mysite/social_network_app/templates/social_network_app/profile.html```
+- Update your file so that it contains:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -626,11 +711,13 @@ Update your file so that it contains:
 </body>
 </html>
 ```
+---
+-> Create a new view:
 
-
-8.2 Create new view that that we may use to add someone as a friend
-Open views.py
-Add the below view to the bottom of the file:
+Next, we will create a new view that that we may use to add someone as a friend.
+To do this:
+- Open views.py
+- Add the below view to the bottom of our `views.py` file:
 
 ```
 def add_friend_view(request):
@@ -643,10 +730,10 @@ def add_friend_view(request):
         return HttpResponse(status=200)
 ```
 
+-> Create a new url route
+Now we will add a new url route to the new view. To do this,
+- Update your app's urls.py at ```social_network_app/urls.py```:
 
-
-8.3 Add url route to the new view
-urls.py
 ```
 urlpatterns = [
     ...
@@ -654,23 +741,28 @@ urlpatterns = [
 ]
 ```
 
+---
+<h3>Adding our first javascript!</h3>
 
-8.3 -> Add the ability to press the button to add a person as a friend without leaving the page
+Now we want to add the ability to press the button to add a person as a friend without leaving the page.
 
-# We want to be able to press the 'Add as friend' button to add a friend without leaving or refreshing the entire 
-# profile page. To do this, we will run a script on part of the page when we click the button. 
-# More specifically, we will use javascript to make an asynchronous call to our 'add_friend_view' in ```views.py```.
+We want to be able to press the 'Add as friend' button to add a friend without leaving or refreshing the entire 
+profile page. To do this, we will run a script on part of the page when we click the button. 
+More specifically, we will use javascript to make an asynchronous call to our 'add_friend_view' in ```views.py```.
 
-# One way to make this async call cleaner is to use a javascript library called 'Intercooler JS' that
-# I and a few friends like using. However, we will use javascript with jquery (another js library) in
-# this tutorial; this method involves less setup than using Intercooler JS. However, I recommend 
-# Intercooler JS for future javascript projects.
+Note : One way to make this async call cleaner is to use a javascript library called 'Intercooler JS' that
+I and a few friends like using. However, we will use javascript with jquery (another js library) in
+this tutorial. The Jquery method involves less setup than using Intercooler JS and is clearer
+on first glance to a less experienced eye. However, I recommend using Intercooler JS for future javascript projects.
 
-
+To add javascript to our button:
 - First, create a suitable directory structure for your javascript files
+
 ```mkdir mysite/social_network_app/static/```
+
 ```mkdir mysite/social_network_app/static/social_network_app```
-- Create file
+- Create a javascript file called `profile.js``
+
 ```touch mysite/social_network_app/static/social_network_app/profile.js```
 - Open file and add the following javascript:
 ```
@@ -708,19 +800,22 @@ our friend many to many connection between the two users
 - The profile template then updates the page html.
 
 
-9. Create signup page
-# To create a signup page, we will follow a similar approach as previously.
+Create signup page
+--
 
-9.1 Create a signup template file
-```cd mysite/social_network_app/templates/social_network_app```
-```touch mysite/social_network_app/templates/social_network_app/signup.html```
+To create a signup page, we will follow a similar approach as previously.
 
-# When a person signs up, we must allow the person to provide the information that our
-# CustomUser model requires to create an instance of that CustomUser model in our database.
-# We will send that allow the person to send this required information to us by using forms
-# in our html. 
+1 - Create a signup template file:
+- ```cd mysite/social_network_app/templates/social_network_app```
+- ```touch mysite/social_network_app/templates/social_network_app/signup.html```
 
-Accordingly, add the following html to signup.html:
+When a person signs up, we must allow the person to provide the information that our
+CustomUser model requires to create an instance of that CustomUser model in our database.
+
+We will send that allow the person to send this required information to us by using forms
+in our html. 
+
+To do this, add the following html to ``signup.html``:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -761,8 +856,9 @@ Accordingly, add the following html to signup.html:
 </html>
 ```
 
-9.2 Create a view that will send data to our template
-In views.py, add the below:
+2 -  As before, we will then create a view that will send data to our template.
+To do this, 
+- In your views.py, add the below:
 ```
 def signup_view(request):
     if request.method == 'POST':
@@ -778,9 +874,11 @@ def signup_view(request):
         return render(request, 'social_network_app/signup.html')
 ```
 
-9.3 Create an url address to route to our view
-I urls.py, add the following to our url patterns:
-(Ignore the ellipses. The ellipses represent the paths that we have already added(
+3 - Create an url address to route to our view:
+
+To do this:
+ - in urls.py, add the following to our url patterns
+(Ignore the ellipses. The ellipses represent the paths that we have already added):
 ```
 urlpatterns = [
 	...
@@ -788,26 +886,31 @@ urlpatterns = [
 ]
 ```
 
-9.4 Visit your signup page!
-Run your server if it is not already running by entering:
-```cd sn/mysite/```
-```python manage.py runserver```
-Visit your signup page
-Create a new user
-Log in!
+4 -  Visit your signup page!
+
+- Run your server if it is not already running by entering:
+  - ```cd sn/mysite/```
+  - ```python manage.py runserver```
+- Visit your signup page
+- Create a new user
+- Log in!
 
 
-9.5 Update views.py to require any visitor to login before visiting a profile page
+5 -  Update views.py to require any visitor to login before visiting a profile page
+
 Issue: Currently, any visitor to the page can visit any profile, regardless
 of whether that visitor is logged in. We will update our views.py to require a 
 login.
 
 To do the above, we will use a python construct called 'decorators'. Django provides 
-pre-built login decorators. We will add these login decorators to our views that 
+pre-built login decorators. 
+
+We will add these login decorators to our views that 
 require a login. This will involve making each of our views require a logged in user,
 besides the login view and the signup view.
 
-Accordingly, update your views.py so that your code looks like:
+To do this:
+- update your views.py so that your code looks like:
 
 ```
 from django.shortcuts import render, redirect
@@ -877,14 +980,12 @@ def signup_view(request):
         return render(request, 'social_network_app/signup.html')
 ```
 
-9.6 Update settings.py
-# We will add the below two lines to the bottom of your ```settings.py```file
-# This will redirect the user after he or she logs in.
+Update settings.py:
+We will add the below two lines to the bottom of your ```settings.py```file. This will redirect the user after he or she logs in.
 
-```cd social-network/mysite/mysite/```
-open settings.py
-
-Add the below to settings.py:
+To do this:
+- open settings.py at ```cd social-network/mysite/mysite/```
+- add the below to the bottom of settings.py:
 ```
 # Custom login url and login redirect.
 # This is included to redirect the session to the login page if there is not a
@@ -892,11 +993,14 @@ Add the below to settings.py:
 LOGIN_URL = '/social-network/login/'
 LOGIN_REDIRECT_URL = '/social-network/'
 ```
+--
 
+Styling!
+--
+Now we will add some styling using CSS! (Tom will briefly explain CSS)
 
-
-10. Add some styling!
-10.1 Update your profile template so that it contains the following:
+1. To prepare your template for the styling:
+- update your profile template so that it contains the following:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -1053,13 +1157,12 @@ alt="" class="circle responsive-img profile-picture">
 </html>
 ```
 
-10.2 Add CSS to style your profile page.
-```cd mysite/social_network_app/static/```
-```mkdir mysite/social_network_app/static/social_network_app/css```
-```touch mysite/social_network_app/static/social_network_app/css/profile.css```
-
-
-Copy and paste the following CSS into ```profile.css```:
+2 -  Add CSS to style your profile page.
+To do this:
+- ```cd mysite/social_network_app/static/```
+- Make a new directory: ```mkdir mysite/social_network_app/static/social_network_app/css```
+- Make a new CSS file called profile.css: ```touch mysite/social_network_app/static/social_network_app/css/profile.css```
+- Copy and paste the following CSS into ```profile.css```:
 ```
 body {
     background: #fffcfc;
@@ -1242,25 +1345,24 @@ textarea.materialize-textarea {
 
 ```
 
+Great job so far! The social network app is starting to look good.
 
 
-11. Add posts and comments
+<h1>Add Posts</h1>
+---
+We will now dd a "New Post" section to the html in your profile page
+This will include a form with a text area and a button that you will press to create a 
+new post.
 
-11.1 Add a "New Post" section to the html in your profile page
-# This will include a form with a text area and a button that you will press to create a 
-# new post.
+We will first add a Post models to your models.py. We will now create the models to define each post in 
+your database. As with your CustomUser model above, we will then send this
+data to your template.
 
-
-
-11.2 Add a Post and Comment models to your models.py.
-# We will now create the models to define each post and comment in 
-# your database. As with your CustomUser model above, we will then send this
-# data to your template.
-
-a) First, we will add a Post model to models.py
+We will add a Post model to models.py
 ```cd models.py```
 
-b) At the bottom of your file, below your CustomUser model, add the following to create the Post:
+To do this:
+- At the bottom of your `models.py`, below your CustomUser model, add the following to create the Post:
 ```
 class Post(models.Model):
     text = models.CharField(max_length=600)
@@ -1273,7 +1375,8 @@ class Post(models.Model):
         ordering = ['-datetime_posted']
  
 ```
-c) Underneath the Post mode, add a Comment model:
+
+- Underneath the Post mode, add a Comment model:
 ```
 class Comment(models.Model):
     text = models.TextField(max_length=600)
@@ -1283,27 +1386,26 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 ```
 
-d) Make migrations and then migration
-
-```cd sn/mysite```
-# To check the migrations, enter:
-```python manage.py makemigrations --dry-run``` 
+We will now make migrations and then migrate. To do this,
+- ```cd sn/mysite```
+- To check the migrations, enter:```python manage.py makemigrations --dry-run``` 
 You should see an output similar to:
+```
 Migrations for 'social_network_app':
   social_network_app/migrations/0003_comment_post.py
     - Create model Post
     - Create model Comment
-
+```
 If your output is similar to the above, make the migrations and then migrate by entering
-```python manage.py makemigrations -n added_Post_and_Comment_models```
-```python manage.py migrate```
+- ```python manage.py makemigrations -n added_Post_and_Comment_models```
+- ```python manage.py migrate```
 
 
-11.3 Create forms.py to receive your data
-```cd mysite/social_network_app/```
-```touch forms.py``` # Create forms.py
+3 - We will now create forms.py to receive your data
+- ```cd mysite/social_network_app/```
+- ```touch forms.py``` # Create forms.py
 
-Add the following to your file:
+- Add the following to your `forms.py` file:
 ```
 from django import forms
 
@@ -1316,20 +1418,17 @@ class PostForm(forms.ModelForm):
         fields = ('text',)
 ```
 
+---
 
-11.4 Show the posts and comments for each post in your user's profile
-# The app will show a user's posts and any comments on those post's 
-# on the user's profile page where that user was the author of the 
-# post.
+4 -  We will now show the posts for each post in your user's profile
+The app will show a user's posts on the user's profile page where that user was the author of the 
+post.
 
+To do this,
+- First, update your profile view in your views.py to process the newly received data from the html 
+template. Update your profile view to accord with the below:
 
-
-a) Update your profile view in your views.py to process the newly received data from the html 
-template.
-
-Update your profile view to accord with the below:
-
-# views.py
+In `views.py`:
 ```
 @login_required
 def profile_view(request, username: str):
@@ -1346,12 +1445,10 @@ def profile_view(request, username: str):
 ```
 
 
-b) Update your template to show the posts that each user has posted on their
-profile!
+- Then update your template to show the posts that each user has posted on their
+profile! 
+Update your `profile.html` template so that it contains the below:
 
-Update your profile template to the below:
-
-# profile.html
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -1523,9 +1620,12 @@ Update your profile template to the below:
 </html>
 ```
 
-c) Add more CSS to style your page
-Add the below CSS to the bottom of your ```profile.css```file
+---
 
+5 -  Add more CSS to style your page
+
+We will add more CSS, To do this:
+- Add the below CSS to the bottom of your ```profile.css```file.
 ```
 .post {
     box-shadow: 0px 0px 2px 2px lightgrey;
@@ -1556,29 +1656,34 @@ Add the below CSS to the bottom of your ```profile.css```file
 }
 ```
 
-# Now check out your page. Each user is now able to add posts to his or her profile page!
-# Notice how a user can only post a new post on his or her own page.
+Now check out your page! Each user is now able to add posts to his or her profile page!
+Notice how a user can only post a new post on his or her own page.
 
 
-12. Adding a Feed
+<h1>Add a Feed</h1>
+--
 
-# Let's now create a 'Feed' page. This Feed will allow each user to see all of his/her posts
-# and friends' posts.
+Let's now create a 'Feed' page. This Feed will allow each user to see all of his/her posts
+and friends' posts.
 
 We will follow the same approach as usual:
+
 -> Create a template
+
 -> Create a view, and
+
 -> Create a url route to connect the browser to the view and template
 
-# Note that you could do the above steps in any order. I normally prefer 
-# first to draft the user interface (the UI) that the user will see. This 
-# means that I normally start by writing the template, but this may vary :)
+Note that you could do the above steps in any order. I normally prefer 
+first to draft the user interface (the UI) that the user will see. This 
+means that I normally start by writing the template, but this may vary :)
 
-a) Create a template for the feed
-```cd mysite/social_network_app/templates/social_network_app```
-```touch feed.html```
-
-Open feed.html. Then add the following:
+1 - Create a template for the feed
+To do this,
+ - ```cd mysite/social_network_app/templates/social_network_app```
+ - ```touch feed.html```  # Create the feed.html file
+ 
+ - Open feed.html. Then add the following:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -1645,10 +1750,10 @@ Open feed.html. Then add the following:
 </html>
 ```
 
-b) Create a view
-Go to your ```views.py``` file.
+2 - Create a view
 
-Add the below to the bottom of ```views.py``` (I have added comments with some explanation after the #; feel free to delete these!):
+- Go to your ```views.py``` file.
+- Add the below to the bottom of ```views.py``` (I have added comments with some explanation after the #; feel free to delete these!):
 
 ```
 @login_required
@@ -1662,10 +1767,11 @@ def feed_view(request):
         return render(request, 'social_network_app/feed.html', {'feed_posts': feed_posts})  # Render the template and send the feed posts to the template.
 ```
 
-c) Add a url route in your ``ùrls.py``
-Go to your ```mysite/social_network_app/urls.py``` file.
+---
 
-Update your urls to add the new url at the bottom of the file:
+3 - Add a url route in your ``ùrls.py``
+- Go to your ```mysite/social_network_app/urls.py``` file.
+- Update your urls to add the new url at the bottom of the file:
 ```
 from django.urls import path
 
@@ -1681,17 +1787,20 @@ urlpatterns = [
 ]
 ```
 
-Check out the Feed at the url that you defined, i.e., /social-network/feed/ !
-It is great to see the feed. However, let us make it more visually appealing 
+---
+<h3>Check out the Feed at the url that you defined, i.e., /social-network/feed/</h3>
+It is great to see the feed! However, let us make it more visually appealing 
 with styling.
 
-d) Style the template
 
-In the same way as with our profile template, create a css file for the feed template.
+
+4 - Style the feed template
+To do this:
+- In the same way as with our profile template, create a css file for the feed template.
 ```cd mysite/social_network_app/static/social_network_app/css/```
 ```touch feed.css```
 
-Copy and paste the below CSS into ```feed.css```:
+- Copy and paste the below CSS into ```feed.css```:
 
 
 ```
@@ -1799,33 +1908,29 @@ body {
 ```
 
 
-
-
-
-
-e) Connect the CSS file to the template by adding the below line to anywhere between the first <head> tag and the first </head> tag
+- Connect the CSS file to the template by adding the below line to anywhere between the first `<head> tag and the first `</head>` tag
 in your ```feed.html``` template:
 ```
 <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/feed.css' %}">
 ```
 
-Add the below line immediately above the first <head> tag in your ```feed.html``` template:
+- Add the below line immediately above the first `<head>` tag in your ```feed.html``` template:
 ```
 {% load static %}
 ```
 
-f) Finally, we'll add links to the feed in the ```profile.html```and ```feed.html``` templates:
+Finally, we'll add links to the feed in the ```profile.html```and ```feed.html``` templates:
+To do this:
+- In your ```profile.html```, add the following line to the commented position in the block below:
 
-# In your ```profile.html```, add the following line to the commented position in the block below:
-Add this: ```<li><a href="{% url 'feed' %}">Feed</a></li>```
+```<li><a href="{% url 'feed' %}">Feed</a></li>```
 
 
-In here:
 ```
 <div class="nav-wrapper">
         <a href="#" class="brand-logo">The Social Network</a>
         <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="{% url 'feed' %}"><i class="material-icons">Feed</i></a></li>
+            <li><a href="{% url 'feed' %}">Feed</a></li>
             <li><a href=""></a></li>
             {% if request.user.username %}
             ...
@@ -1834,23 +1939,26 @@ In here:
 In your ```feed.html```, add the same line in the same position.
 
 
-# Congratulations - our basic social network app is taking shape!
-# TD: Point about duplicating -> DRY
+Congratulations - our basic social network app is taking shape!
+Tom to explain Point about duplicating -> DRY
 
 
+---
 
+Add an individual profile picture and cover photo for every user
+---
 
-13. Add an individual profile picture and cover photo for every user
+Currently, all user's profile pictures are fetched from a photo that I took 
+that is stored on an online photo site called unsplash.com (I highly recommend unsplash for 
+high quality licence free images).
 
-# Currently, all user's profile pictures are fetched from a photo that I took 
-# that is stored on an online photo site called unsplash.com (I highly recommend unsplash for 
-# high quality licence free images).
-# We want each user to be able to select images as the user's profile picture and cover photo
-# To do this, we will store urls to the images in our database. The user may specify these
-# image urls when they signup.
+However, we want each user to be able to select images as the user's profile picture and cover photo
 
+To accomplish this, we will store urls to the images in our database. The user may specify these
+image urls when they signup.
 
-a) Update your ```signup.html``` template to include the following:
+To do this:
+1 - Update your ```signup.html``` template to include the following:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -1900,7 +2008,7 @@ a) Update your ```signup.html``` template to include the following:
 </html>
 ```
 
-b) Update your signup_view in your ```views.py``` to include the following:
+2 - Update your signup_view in your ```views.py``` to include the following:
 ```
 def signup_view(request):
     if request.method == 'POST':
@@ -1921,9 +2029,9 @@ def signup_view(request):
 ```
 
 
-c) Update your CustomUser model in your ```models.py```.
-
-Update ```models.py``` to include the following:
+3 - Update your CustomUser model in your ```models.py```.
+To do this:
+- Update ```models.py``` to include the following:
 
 ```
 class CustomUser(AbstractUser):
@@ -1952,14 +2060,14 @@ class CustomUser(AbstractUser):
         return str(self.username)
 ```
 
-As before, makemigrations and then migrate:
-```cd social_network_app/mysite/manage.py```
-```python manage.py makemigrations -n added_url_fields```
-```python migrate```
+4 - Then, as before, makemigrations and then migrate:
+- ```cd social_network_app/mysite/manage.py```
+- ```python manage.py makemigrations -n added_url_fields```
+- ```python migrate```
 
 
-d) Update your templates:
-Replace the html in ```profile.html``` with the following:
+5 -  Update your templates:
+- Replace the html in ```profile.html``` with the following:
 
 ```
 <!DOCTYPE html>
@@ -2141,8 +2249,8 @@ Replace the html in ```profile.html``` with the following:
 </html>
 ```
 
-e) Update your ```feed.html``` template
-Replace the html with the below:
+6 - Then update your ```feed.html``` template
+Replace the `feed.html with the below:
 ```
 <!DOCTYPE html>
 <html lang="en">
@@ -2215,41 +2323,17 @@ Replace the html with the below:
 </html>
 ```
 
-# Congratulations! Users are now able to specify their own cover picture and profile 
-# picture when they signup!
+#Congratulations! 
+Users are now able to specify their own cover picture and profile 
+picture when they signup!
 
 
 
-
-
-
-
-
- 
- 
- 
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-User image:
-
-    <img src="https://images.unsplash.com/photo-1511485977113-f34c92461ad9?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=300&h=300&fit=crop&ixid=eyJhcHBfaWQiOjF9"
-         alt="profile picture image not found"
-         />
-
-
-
-
-
-
+Next steps:
+- Add comments to your posts
+- Add a search bar for user's to find their friends and potential friends
+- Add likes/dislikes/loves/joy/melancholy/wistful longing/sense of triumphant 
+overcoming/happiness buttons to allow users to indicate their emotional reactions 
+to posts and comments
+- Add the ability for users to upload their own images and to change their 
+profile pciture and cover picture 
