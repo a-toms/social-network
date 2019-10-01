@@ -54,13 +54,16 @@ def add_friend_view(request):
 
 def signup_view(request):
     if request.method == 'POST':
+        default_profile_picture_url = 'https://source.unsplash.com/UHjW9-c_YyM'
+        default_cover_photo_url = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9'
         CustomUser.objects.create_user(
             first_name=request.POST['first_name'],
             last_name=request.POST['last_name'],
             username=request.POST['username'],
             password=request.POST['password'],
             email=request.POST['email'],
-
+            cover_picture=request.POST['cover-picture'] or default_cover_photo_url,
+            profile_picture=request.POST['profile-picture'] or default_profile_picture_url
         )
         return redirect('login')
     else:

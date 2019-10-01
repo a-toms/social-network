@@ -938,7 +938,8 @@ LOGIN_REDIRECT_URL = '/social-network/'
     </div>
     <div class="profile-picture-container card-content">
            <div class="">
-<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture">
+<img src="https://images.unsplash.com/photo-1555964840-87d32a60e722?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=540&h=406&fit=crop&ixid=eyJhcHBfaWQiOjF9" 
+alt="" class="circle responsive-img profile-picture">
 <!-- notice the "circle" class -->
            <div class="profile-name grey-text ">
                {{ user.first_name }} {{ user.last_name }}
@@ -993,7 +994,7 @@ LOGIN_REDIRECT_URL = '/social-network/'
                             <div class="row valign-wrapper current-friend-container">
                                 <button type="submit">
                                     <div class="current-friend-card">
-                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <img src="http://source.unsplash.com/E_h1wome8Jc/540x406" alt="" class="responsive-img">
                                         <div class="black-text">
                                             {{ friend.first_name }} {{ friend.last_name }}
                                         </div>
@@ -1392,7 +1393,7 @@ Update your profile template to the below:
     </div>
     <div class="profile-picture-container card-content">
            <div class="">
-<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture">
+<img src="http://source.unsplash.com/E_h1wome8Jc/540x406" alt="" class="circle responsive-img profile-picture">
 <!-- notice the "circle" class -->
            <div class="profile-name grey-text ">
                {{ user.first_name }} {{ user.last_name }}
@@ -1447,7 +1448,7 @@ Update your profile template to the below:
                             <div class="row valign-wrapper current-friend-container">
                                 <button type="submit">
                                     <div class="current-friend-card">
-                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <img src="http://source.unsplash.com/E_h1wome8Jc/540x406" alt="" class="responsive-img">
                                         <div class="black-text">
                                             {{ friend.first_name }} {{ friend.last_name }}
                                         </div>
@@ -1618,7 +1619,7 @@ Open feed.html. Then add the following:
             <div class="feed-item-row">
                 <div class="feed-item-inner ">
                     <div class="profile-picture-container">
-                        <img src="http://source.unsplash.com/random/75x75" alt=""
+                        <img src="http://source.unsplash.com/E_h1wome8Jc/108x82" alt=""
                              class="circle responsive-img profile-picture-image">
                     </div>
                     <div class="post-author">
@@ -1841,13 +1842,381 @@ In your ```feed.html```, add the same line in the same position.
 
 13. Add an individual profile picture and cover photo for every user
 
-# Currently, all user's profile pictures are randomly fetched from an online photo bank.
+# Currently, all user's profile pictures are fetched from a photo that I took 
+# that is stored on an online photo site called unsplash.com (I highly recommend unsplash for 
+# high quality licence free images).
 # We want each user to be able to select images as the user's profile picture and cover photo
 # To do this, we will store urls to the images in our database. The user may specify these
 # image urls when they signup.
 
 
-a) Add 
+a) Update your ```signup.html``` template to include the following:
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Signup</title>
+</head>
+<body>
+<nav>
+    <h1>The Social Network</h1>
+</nav>
+<form method="POST">
+    {% csrf_token %}
+    <div>
+        <input type="text" name="first_name" placeholder="First name">
+    </div>
+    <br>
+    <div>
+        <input type="text" name="last_name" placeholder="Last name">
+    </div>
+    <br>
+    <div>
+        <input type="text" name="username" placeholder="Username">
+    </div>
+    <br>
+    <div>
+        <input type="password" name="password" placeholder="Password">
+    </div>
+    <br>
+    <div>
+        <input type="email" name="email" placeholder="Email">
+    </div>
+    <br>
+    <div>
+        <input type="url" name="cover-picture" placeholder="Cover picture url">
+    </div>
+    <br>
+    <div>
+        <input type="url" name="profile-picture" placeholder="Profile picture url">
+    </div>
+    <button type="submit">
+        Sign up!
+    </button>
+</form>
+
+</body>
+</html>
+```
+
+b) Update your signup_view in your ```views.py``` to include the following:
+```
+def signup_view(request):
+    if request.method == 'POST':
+        default_profile_picture_url = 'https://source.unsplash.com/UHjW9-c_YyM'
+        default_cover_photo_url = 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9'
+        CustomUser.objects.create_user(
+            first_name=request.POST['first_name'],
+            last_name=request.POST['last_name'],
+            username=request.POST['username'],
+            password=request.POST['password'],
+            email=request.POST['email'],
+            cover_picture=request.POST['cover-picture'] or default_cover_photo_url,
+            profile_picture=request.POST['profile-picture'] or default_profile_picture_url
+        )
+        return redirect('login')
+    else:
+        return render(request, 'social_network_app/signup.html')
+```
+
+
+c) Update your CustomUser model in your ```models.py```.
+
+Update ```models.py``` to include the following:
+
+```
+class CustomUser(AbstractUser):
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        blank=False,
+        null=False,
+        help_text=('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',),
+        error_messages={
+            'unique': ("A user with that username already exists.",),
+        },
+    )
+    cover_picture = models.URLField(
+        max_length=400,
+    )
+    profile_picture = models.URLField(
+        max_length=400,
+    )
+    email = models.EmailField(blank=False, null=False, unique=True)
+    first_name = models.CharField(max_length=30, blank=False, null=False)
+    last_name = models.CharField(max_length=150, blank=False, null=False)
+    friends = models.ManyToManyField('self')
+
+    def __str__(self) -> str:
+        return str(self.username)
+```
+
+As before, makemigrations and then migrate:
+```cd social_network_app/mysite/manage.py```
+```python manage.py makemigrations -n added_url_fields```
+```python migrate```
+
+
+d) Update your templates:
+Replace the html in ```profile.html``` with the following:
+
+```
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/profile.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Vollkorn+SC&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+</head>
+
+<body>
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'feed' %}">Feed</a></li>
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="card top-container">
+    <div class="card-image waves-effect waves-block waves-light cover-photo-container">
+        <img class="cover-photo"
+             src="{{ user.cover_picture }}"
+             alt="Cover picture image not found"
+        >
+    </div>
+    <div class="profile-picture-container card-content">
+           <div class="">
+<img src="{{ user.profile_picture }}"
+     height="150px"
+     width="150px"
+     alt=""
+     class="circle responsive-img profile-picture-container">
+<!-- notice the "circle" class -->
+           <div class="profile-name grey-text ">
+               {{ user.first_name }} {{ user.last_name }}
+           </div>
+               <div class="personal-details grey-text text-darken-5">
+                   <p><i>{{ user.email }}</i></p>
+                   <p><i>{{ user.username }}</i></p>
+               </div>
+               <div class="right add-friend-container">
+                    {% if request.user.pk != user.pk %}
+                        {% if request.user in user.friends.all %}
+                            <button type="button" class="btn waves-effect waves-light pink">
+                                Is a friend <i class="material-icons">person</i>
+                            </button>
+                        {% else %}
+                            <button type="button" class="btn waves-effect waves-light blue" id="add-friend-button">
+                                <i class="material-icons">person_add</i>
+                            Add friend
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+            <div>
+
+            </div>
+        </div>
+    </div>
+    <div class="section-container">
+
+    </div>
+    <div class="section-container">
+        <div class="column-container-1">
+            <div class="column-container-1-item-size-one">
+                <div class="section-title">
+                    Interests
+                    <div class="section-text">
+                        <ul>
+                            <li>Rock sailing </li>
+                            <li>Water hiking</li>
+                            <li>Pit jumping</li>
+                            <li>Forest rafting</li>
+                            <li>Loud Shouting</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="section-title">Friends
+                    <i class="material-icons friends-icon">group</i>
+                </div>
+                {% if user.friends.all %}
+                    {% for friend in user.friends.all %}
+                        <a href="{% url 'profile' username=friend.username %}">
+                            <div class="row valign-wrapper current-friend-container">
+                                <button type="submit">
+                                    <div class="current-friend-card">
+                                        <img src="{{ friend.profile_picture }}"
+                                             alt=""
+                                             height="150px"
+                                             width="150px"
+                                             class="responsive-img">
+                                        <div class="black-text">
+                                            {{ friend.first_name }} {{ friend.last_name }}
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No friends yet</p>
+                {% endif %}
+            </div>
+
+            <div class="column-container-1-item-size-two">
+            {% if request.user.username == user.username %}
+                <div class="section-title">
+                    New post
+                </div>
+                <div>
+                    <form method="POST" class="input-field col ">{% csrf_token %}
+                        <label for="new-post"></label>
+                        <textarea id="new-post"
+                                  class="materialize-textarea"
+                                  placeholder="Type your new post"
+                                  name="text"
+                        ></textarea>
+                        <button type="submit" class="right">Post</button>
+                    </form>
+                </div>
+            {% endif %}
+                <div class="section-title">
+                   Wall
+                </div>
+                <div class="posts">
+                {% if user.post_set.exists %}
+                    {% for post in user.post_set.all %}
+                        <div class="post">
+                            <div class="text">{{ post.text }}</div>
+                            <div class="datetime">{{ post.datetime_posted }}</div>
+                            <div class="post-author">{{ post.author|capfirst }}</div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                <div>No posts yet!</div>
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+        crossorigin="anonymous">
+</script>
+<script type="text/javascript"
+        src="{% static 'social_network_app/js/profile.js' %}">
+</script>
+<!-- Compiled and minified JavaScript -->
+
+
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    const currentUser = '{{request.user.pk}}';
+    if (currentUser) {
+        addClickListenerToAddFriendButton(currentUser, {{user.pk}}, csrfToken);
+    }
+</script>
+
+</body>
+</html>
+```
+
+e) Update your ```feed.html``` template
+Replace the html with the below:
+```
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <title>Feed</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{% static 'social_network_app/css/feed.css' %}">
+</head>
+
+<nav>
+    <div class="nav-wrapper">
+        <a href="#" class="brand-logo">The Social Network</a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'feed' %}">Feed</a></li>
+            <li><a href=""></a></li>
+            {% if request.user.username %}
+                <li><a href="{% url 'profile' username=request.user.username %}">{{ request.user.first_name }}</a></li>
+            {% else %}
+                <li><a href="">Guest</a></li>
+            {% endif %}
+            <li><a href="{% url 'logout' %}"><i class="material-icons">exit_to_app</i></a>
+                Logout
+            </li>
+        </ul>
+    </div>
+</nav>
+<body>
+<div class="feed-heading-container">
+    <div class="feed-heading-text">
+        Feed
+    </div>
+</div>
+<div class="feed-outer-container">
+    <div class="feed-inner-container-size-three"></div>
+    {% if feed_posts %}
+        {% for post in feed_posts %}
+            <a href="{% url 'profile' username=post.author.username %}">
+            <div class="feed-item-row">
+                <div class="feed-item-inner ">
+                    <div class="profile-picture-container">
+                        <img src="{{ post.author.profile_picture }}"
+                             width="200px"
+                             height="200px"
+                             alt=""
+                             class="circle responsive-img profile-picture-image">
+                    </div>
+                    <div class="post-author">
+                        <div></div>
+                        {{ post.author|capfirst }}
+                    </div>
+                </div>
+                <div class="feed-item-inner post-right">
+                    <div class="post-detail">
+                        <div class="text">{{ post.text }}</div>
+                        <div class="datetime">{{ post.datetime_posted }}</div>
+                    </div>
+                </div>
+            </div>
+            </a>
+        {% endfor %}
+    {% else %}
+        <div>You and your friends have no posts yet!</div>
+    {% endif %}
+    <div class="feed-inner-container-size-one"></div>
+</div>
+</body>
+</html>
+```
+
+# Congratulations! Users are now able to specify their own cover picture and profile 
+# picture when they signup!
 
 
 
