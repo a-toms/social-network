@@ -40,7 +40,10 @@
             <div class="feed-item-row">
                 <div class="feed-item-inner ">
                     <div class="profile-picture-container">
-                        <img src="http://source.unsplash.com/random/75x75" alt=""
+                        <img src="{{ post.author.profile_picture }}"
+                             width="100px"
+                             height="100px"
+                             alt=""
                              class="circle responsive-img profile-picture-image">
                     </div>
                     <div class="post-author">

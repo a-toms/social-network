@@ -32,13 +32,17 @@
 <div class="card top-container">
     <div class="card-image waves-effect waves-block waves-light cover-photo-container">
         <img class="cover-photo"
-             src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&fit=crop&ixid=eyJhcHBfaWQiOjF9"
+             src="{{ user.cover_picture }}"
              alt="Cover picture image not found"
         >
     </div>
     <div class="profile-picture-container card-content">
            <div class="">
-<img src="http://source.unsplash.com/random/150x150" alt="" class="circle responsive-img profile-picture-container">
+<img src="{{ user.profile_picture }}"
+     height="150px"
+     width="150px"
+     alt=""
+     class="circle responsive-img profile-picture-container">
 <!-- notice the "circle" class -->
            <div class="profile-name grey-text ">
                {{ user.first_name }} {{ user.last_name }}
@@ -76,12 +80,13 @@
                 <div class="section-title">
                     Interests
                     <div class="section-text">
-                        <p>Rock sailing
-                            Water hiking
-                            Pit jumping
-                            Forest rafting
-                            Loud Shouting
-                        </p>
+                        <ul>
+                            <li>Rock sailing </li>
+                            <li>Water hiking</li>
+                            <li>Pit jumping</li>
+                            <li>Forest rafting</li>
+                            <li>Loud Shouting</li>
+                        </ul>
                     </div>
                 </div>
                 <div class="section-title">Friends
@@ -93,7 +98,11 @@
                             <div class="row valign-wrapper current-friend-container">
                                 <button type="submit">
                                     <div class="current-friend-card">
-                                        <img src="https://source.unsplash.com/random/150x150" alt="" class="responsive-img">
+                                        <img src="{{ friend.profile_picture }}"
+                                             alt=""
+                                             height="150px"
+                                             width="150px"
+                                             class="responsive-img">
                                         <div class="black-text">
                                             {{ friend.first_name }} {{ friend.last_name }}
                                         </div>
