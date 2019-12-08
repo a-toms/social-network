@@ -1,3 +1,4 @@
+<a href="https://codeclimate.com/github/a-toms/social-network/maintainability"><img src="https://api.codeclimate.com/v1/badges/d21b1f506d904315edae/maintainability" /></a>
 
 Create a Social Network with Django!
 --
